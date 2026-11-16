@@ -259,6 +259,89 @@ app.post("/api/test-telegram", requireAdmin, async (req, res) => {
   res.json(result);
 });
 
+
+// 9. Sync All Services & Pack Icons from Shop2Topup Reseller API
+app.post("/api/sync-shop2topup", requireAdmin, async (req, res) => {
+  const db = loadDB();
+  const { supplierUid, supplierKey } = db.config;
+  const markupPct = Number(req.body.markupPct || 18);
+
+  if (!supplierUid || !supplierKey) {
+    return res.status(400).json({ ok: false, error: "Shop2Topup UID or Secret Key is missing in Backend & API Keys." });
+  }
+
+  try {
+    const authHeader = `Bearer ${supplierUid}.${supplierKey}`;
+    const endpoints = [
+      "https://shop2topup.com/api/endpoints/v1/services",
+      "https://shop2topup.com/api/endpoints/v1/products"
+    ];
+
+    let rawItems = [];
+    for (const url of endpoints) {
+      try {
+        const r = await fetch(url, { headers: { "Authorization": authHeader, "Accept": "application/json" } });
+        if (r.ok) {
+          const json = await r.json();
+          const list = Array.isArray(json) ? json : (json.data || json.services || json.products || []);
+          if (Array.isArray(list) && list.length) {
+            rawItems = list;
+            break;
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (!rawItems.length) {
+      return res.status(502).json({ ok: false, error: "Shop2Topup API returned no items. Verify your API key permissions." });
+    }
+
+    const syncedGames = rawItems.map((svc, idx) => {
+      const svcId = String(svc.slug || svc.id || svc.code || ("svc_" + idx)).toLowerCase();
+      const offers = svc.offers || svc.packages || svc.items || svc.skus || [];
+      const pkgs = offers.map((o, pIdx) => {
+        const cost = Number(o.price || o.cost || o.amount_usd || 1.0);
+        const retail = Number((cost * (1 + markupPct / 100)).toFixed(2));
+        return {
+          id: String(o.sku || o.id || `${svcId}_${pIdx}`),
+          sku: String(o.sku || o.id || `${svcId}_${pIdx}`),
+          group: o.category || o.group || "Packages",
+          name: o.name || o.title || ("Package " + (pIdx + 1)),
+          bonus: o.bonus || o.description || "Instant Auto-Delivery",
+          cost,
+          price: retail,
+          iconUrl: o.icon || o.image || o.icon_url || "",
+          badge: pIdx === 0 ? "HOT" : "",
+          badgeClass: pIdx === 0 ? "badge-hot" : ""
+        };
+      });
+
+      return {
+        id: svcId,
+        name: svc.name || svc.title || svcId.toUpperCase(),
+        publisher: svc.publisher || svc.category || "Shop2Topup Direct",
+        category: svc.category || "MOBA",
+        logoUrl: svc.icon || svc.logo || svc.image || "",
+        gradient: "linear-gradient(135deg, #0284c7, #1e1b4b)",
+        idLabel: svc.player_id_label || "Player ID",
+        zoneLabel: svc.zone_id_label || "Zone / Server ID",
+        hasZone: Boolean(svc.has_zone || svc.require_zone || svc.zone_id_label),
+        packages: pkgs
+      };
+    }).filter(g => g.packages.length > 0);
+
+    if (syncedGames.length) {
+      db.catalog = syncedGames;
+      saveDB(db);
+    }
+
+    const totalPackages = syncedGames.reduce((acc, g) => acc + g.packages.length, 0);
+    res.json({ ok: true, games: syncedGames, totalPackages });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`KHTOPUP Full Auto-Store running on http://localhost:${PORT}`);
