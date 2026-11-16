@@ -370,17 +370,39 @@
     }
 
     .game-icon-circle {
-      width: 46px;
-      height: 46px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.18);
-      border: 1px solid rgba(255, 255, 255, 0.35);
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 22px;
       font-weight: 800;
       color: #fff;
+      overflow: hidden;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    }
+    .game-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .pkg-top-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .pkg-icon-img {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      object-fit: contain;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 6px rgba(0, 229, 255, 0.25));
     }
 
     .game-body {
@@ -1040,6 +1062,10 @@
                 <input type="text" id="newPkgBonus" class="field-input" placeholder="e.g. +50 Bonus" />
               </div>
               <div class="field-group">
+                <label>Custom Pack Icon URL (Optional)</label>
+                <input type="text" id="newPkgIconUrl" class="field-input" placeholder="https://... (leave blank for auto diamond icon)" />
+              </div>
+              <div class="field-group">
                 <label>Supplier SKU ID</label>
                 <input type="text" id="newPkgSku" class="field-input" placeholder="e.g. 27" />
               </div>
@@ -1247,6 +1273,55 @@
     let pollTimer = null;
     let isBackendOnline = false;
     let adminUnlocked = safeGetSession("kht_admin_unlocked") === "1";
+
+    const GAME_LOGOS = {
+      mlbb: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22mlBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231e3a8a%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%233b82f6%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%237c3aed%22/%3E%20%3C/linearGradient%3E%20%3ClinearGradient%20id%3D%22mlGold%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fde047%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23f59e0b%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23b45309%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23mlBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22url%28%23mlGold%29%22%20stroke-width%3D%224%22/%3E%20%3Cpolygon%20points%3D%2260%2C18%2092%2C42%2082%2C92%2060%2C104%2038%2C92%2028%2C42%22%20fill%3D%22%230f172a%22%20stroke%3D%22url%28%23mlGold%29%22%20stroke-width%3D%223%22/%3E%20%3Cpath%20d%3D%22M42%2C76%20L42%2C42%20L60%2C58%20L78%2C42%20L78%2C76%22%20fill%3D%22none%22%20stroke%3D%22url%28%23mlGold%29%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%20%3Cpolygon%20points%3D%2260%2C26%2067%2C36%2060%2C46%2053%2C36%22%20fill%3D%22%2338bdf8%22/%3E%20%3Ctext%20x%3D%2260%22%20y%3D%2295%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2213%22%20fill%3D%22%23fde047%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%221%22%3EMLBB%3C/text%3E%20%3C/svg%3E",
+      ff: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22ffBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%237c2d12%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23ea580c%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23dc2626%22/%3E%20%3C/linearGradient%3E%20%3ClinearGradient%20id%3D%22ffFlame%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fef08a%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23fb923c%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23ef4444%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23ffBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23fdba74%22%20stroke-width%3D%224%22/%3E%20%3Cpath%20d%3D%22M62%2C18%20C75%2C35%2088%2C48%2084%2C70%20C81%2C86%2068%2C96%2056%2C96%20C41%2C96%2032%2C82%2036%2C64%20C39%2C50%2048%2C43%2050%2C34%20C53%2C43%2059%2C45%2060%2C36%20C61%2C28%2060%2C22%2062%2C18%20Z%22%20fill%3D%22url%28%23ffFlame%29%22/%3E%20%3Cpath%20d%3D%22M58%2C52%20C65%2C62%2069%2C70%2066%2C80%20C64%2C87%2057%2C91%2052%2C91%20C46%2C91%2042%2C84%2044%2C75%20C46%2C67%2053%2C61%2058%2C52%20Z%22%20fill%3D%22%23fef9c3%22/%3E%20%3Ctext%20x%3D%2260%22%20y%3D%22108%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2213%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%221%22%3EFREE%20FIRE%3C/text%3E%20%3C/svg%3E",
+      pubg: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22pgBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231e293b%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23090d16%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23pgBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23eab308%22%20stroke-width%3D%224%22/%3E%20%3Cpath%20d%3D%22M34%2C54%20C34%2C34%2046%2C24%2060%2C24%20C74%2C24%2086%2C34%2086%2C54%20L86%2C74%20L34%2C74%20Z%22%20fill%3D%22%23334155%22%20stroke%3D%22%23eab308%22%20stroke-width%3D%223%22/%3E%20%3Crect%20x%3D%2238%22%20y%3D%2248%22%20width%3D%2244%22%20height%3D%2214%22%20rx%3D%224%22%20fill%3D%22%230f172a%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%222.5%22/%3E%20%3Cline%20x1%3D%2260%22%20y1%3D%2248%22%20x2%3D%2260%22%20y2%3D%2262%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%222.5%22/%3E%20%3Ctext%20x%3D%2260%22%20y%3D%2296%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2216%22%20fill%3D%22%23facc15%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%221.5%22%3EPUBG%3C/text%3E%20%3C/svg%3E",
+      hok: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22hkBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230c4a6e%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230f172a%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23hkBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%224%22/%3E%20%3Cpolygon%20points%3D%2228%2C74%2036%2C40%2050%2C56%2060%2C30%2070%2C56%2084%2C40%2092%2C74%22%20fill%3D%22%23f59e0b%22%20stroke%3D%22%23fef08a%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%20%3Crect%20x%3D%2228%22%20y%3D%2276%22%20width%3D%2264%22%20height%3D%228%22%20rx%3D%223%22%20fill%3D%22%23fde047%22/%3E%20%3Ctext%20x%3D%2260%22%20y%3D%22102%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2215%22%20fill%3D%22%2338bdf8%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%221.5%22%3EHOK%3C/text%3E%20%3C/svg%3E",
+      genshin: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22gsBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23312e81%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230e7490%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23gsBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23a5b4fc%22%20stroke-width%3D%224%22/%3E%20%3Cpath%20d%3D%22M60%2C20%20L69%2C51%20L100%2C60%20L69%2C69%20L60%2C100%20L51%2C69%20L20%2C60%20L51%2C51%20Z%22%20fill%3D%22%23fef08a%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22/%3E%20%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%229%22%20fill%3D%22%2338bdf8%22/%3E%20%3C/svg%3E"
+    };
+
+    const PACK_ICONS = {
+      ml_diamond: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22d1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a5f3fc%22/%3E%20%3Cstop%20offset%3D%2245%25%22%20stop-color%3D%22%230ea5e9%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231d4ed8%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2224%2C14%2056%2C14%2072%2C32%2040%2C68%208%2C32%22%20fill%3D%22url%28%23d1%29%22%20stroke%3D%22%23e0f2fe%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%20%3Cpolygon%20points%3D%2224%2C14%2040%2C32%208%2C32%22%20fill%3D%22%23bae6fd%22%20opacity%3D%220.7%22/%3E%20%3Cpolygon%20points%3D%2256%2C14%2072%2C32%2040%2C32%22%20fill%3D%22%230284c7%22%20opacity%3D%220.6%22/%3E%20%3Cpolygon%20points%3D%2224%2C14%2056%2C14%2040%2C32%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.85%22/%3E%20%3Cpolygon%20points%3D%2240%2C32%2072%2C32%2040%2C68%22%20fill%3D%22%231e40af%22%20opacity%3D%220.55%22/%3E%20%3C/svg%3E",
+      ml_diamond_stack: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22ds1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fde047%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230284c7%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2218%2C24%2038%2C24%2048%2C36%2028%2C60%208%2C36%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%20%3Cpolygon%20points%3D%2242%2C24%2062%2C24%2072%2C36%2052%2C60%2032%2C36%22%20fill%3D%22%230284c7%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%20%3Cpolygon%20points%3D%2226%2C12%2054%2C12%2068%2C28%2040%2C64%2012%2C28%22%20fill%3D%22url%28%23ds1%29%22%20stroke%3D%22%23fef08a%22%20stroke-width%3D%222.5%22/%3E%20%3Cpolygon%20points%3D%2226%2C12%2054%2C12%2040%2C28%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22/%3E%20%3C/svg%3E",
+      ml_pass: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22wp%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a855f7%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%236366f1%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23ec4899%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20x%3D%2212%22%20y%3D%2214%22%20width%3D%2256%22%20height%3D%2252%22%20rx%3D%2212%22%20fill%3D%22url%28%23wp%29%22%20stroke%3D%22%23fde047%22%20stroke-width%3D%223%22/%3E%20%3Cpolygon%20points%3D%2240%2C22%2054%2C36%2040%2C54%2026%2C36%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22/%3E%20%3Ctext%20x%3D%2240%22%20y%3D%2262%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%229%22%20fill%3D%22%23fde047%22%20text-anchor%3D%22middle%22%3EPASS%3C/text%3E%20%3C/svg%3E",
+      ff_diamond: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22ffd%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2367e8f9%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%2306b6d4%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230f766e%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2240%2C10%2068%2C36%2040%2C70%2012%2C36%22%20fill%3D%22url%28%23ffd%29%22%20stroke%3D%22%23cffafe%22%20stroke-width%3D%222.5%22/%3E%20%3Cpolygon%20points%3D%2240%2C10%2054%2C36%2040%2C46%2026%2C36%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.8%22/%3E%20%3Ccircle%20cx%3D%2258%22%20cy%3D%2220%22%20r%3D%225%22%20fill%3D%22%23f97316%22/%3E%20%3C/svg%3E",
+      pubg_uc: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22ucg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fef08a%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23f59e0b%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23b45309%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2240%2C10%2068%2C26%2068%2C54%2040%2C70%2012%2C54%2012%2C26%22%20fill%3D%22url%28%23ucg%29%22%20stroke%3D%22%23fef9c3%22%20stroke-width%3D%222.5%22/%3E%20%3Ctext%20x%3D%2240%22%20y%3D%2247%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2222%22%20fill%3D%22%231e293b%22%20text-anchor%3D%22middle%22%3EUC%3C/text%3E%20%3C/svg%3E",
+      hok_token: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2230%22%20fill%3D%22%230284c7%22%20stroke%3D%22%23fde047%22%20stroke-width%3D%224%22/%3E%20%3Cpolygon%20points%3D%2240%2C18%2056%2C40%2040%2C62%2024%2C40%22%20fill%3D%22%23facc15%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%20%3C/svg%3E",
+      genshin_crystal: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22gsc%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23e0e7ff%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23818cf8%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2338bdf8%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2240%2C8%2062%2C32%2054%2C68%2026%2C68%2018%2C32%22%20fill%3D%22url%28%23gsc%29%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222.5%22/%3E%20%3Cpath%20d%3D%22M40%2C22%20L44%2C36%20L58%2C40%20L44%2C44%20L40%2C58%20L36%2C44%20L22%2C40%20L36%2C36%20Z%22%20fill%3D%22%23fef08a%22/%3E%20%3C/svg%3E"
+    };
+
+    function getGameLogoSrc(g) {
+      if (g.logoUrl) return g.logoUrl;
+      if (g.icon && (g.icon.startsWith("http") || g.icon.startsWith("data:"))) return g.icon;
+      return GAME_LOGOS[g.id] || GAME_LOGOS.mlbb;
+    }
+
+    function getPackageIconSrc(g, p) {
+      if (p.iconUrl) return p.iconUrl;
+      const grp = (p.group || "").toLowerCase();
+      const nm = (p.name || "").toLowerCase();
+      if (g.id === "mlbb") {
+        if (grp.includes("pass") || nm.includes("pass")) return PACK_ICONS.ml_pass;
+        if (p.price >= 10 || grp.includes("2x")) return PACK_ICONS.ml_diamond_stack;
+        return PACK_ICONS.ml_diamond;
+      }
+      if (g.id === "ff") {
+        if (grp.includes("pass") || nm.includes("membership")) return PACK_ICONS.ml_pass;
+        return PACK_ICONS.ff_diamond;
+      }
+      if (g.id === "pubg") return PACK_ICONS.pubg_uc;
+      if (g.id === "hok") {
+        if (grp.includes("pass") || nm.includes("card")) return PACK_ICONS.ml_pass;
+        return PACK_ICONS.hok_token;
+      }
+      if (g.id === "genshin") {
+        if (grp.includes("pass") || nm.includes("welkin")) return PACK_ICONS.ml_pass;
+        return PACK_ICONS.genshin_crystal;
+      }
+      return PACK_ICONS.ml_diamond;
+    }
 
     const DEFAULT_GAMES = [
       {
@@ -1523,7 +1598,7 @@
         <div class="game-card" onclick="selectGame('${g.id}')">
           <div class="game-banner" style="background:${g.gradient};">
             <span class="game-cat-tag">${g.category} • ${g.packages.length} Packs</span>
-            <div class="game-icon-circle">${g.icon}</div>
+            <div class="game-icon-circle"><img src="${getGameLogoSrc(g)}" alt="${g.name}" class="game-logo-img" /></div>
           </div>
           <div class="game-body">
             <div>
@@ -1543,7 +1618,7 @@
       selectedPkg = selectedGame.packages[0];
       verifiedNickname = "";
 
-      document.getElementById("wsIcon").textContent = selectedGame.icon;
+      document.getElementById("wsIcon").innerHTML = `<img src="${getGameLogoSrc(selectedGame)}" alt="${selectedGame.name}" class="game-logo-img" />`;
       document.getElementById("wsIcon").style.background = selectedGame.gradient;
       document.getElementById("wsTitle").textContent = selectedGame.name;
       document.getElementById("wsSub").textContent = selectedGame.publisher + " • " + selectedGame.packages.length + " Instant Packages Available";
@@ -1603,9 +1678,12 @@
       grid.innerHTML = list.map(p => `
         <div class="pkg-card ${selectedPkg && selectedPkg.id === p.id ? 'selected' : ''}" onclick="selectPackage('${p.id}')">
           ${p.badge ? `<span class="pkg-badge ${p.badgeClass || 'badge-hot'}">${p.badge}</span>` : ''}
-          <div>
-            <div class="pkg-name">${p.name}</div>
-            <div class="pkg-bonus">${p.bonus}</div>
+          <div class="pkg-top-row">
+            <img src="${getPackageIconSrc(selectedGame, p)}" alt="${p.name}" class="pkg-icon-img" />
+            <div>
+              <div class="pkg-name">${p.name}</div>
+              <div class="pkg-bonus">${p.bonus}</div>
+            </div>
           </div>
           <div class="pkg-price">${formatMoney(p.price)}</div>
         </div>
@@ -1919,6 +1997,7 @@
       const group = document.getElementById("newPkgGroup").value;
       const name = document.getElementById("newPkgName").value.trim();
       const bonus = document.getElementById("newPkgBonus").value.trim() || "Instant Direct";
+      const iconUrl = (document.getElementById("newPkgIconUrl")?.value || "").trim();
       const sku = document.getElementById("newPkgSku").value.trim() || ("sku_" + Date.now());
       const cost = parseFloat(document.getElementById("newPkgCost").value);
       const price = parseFloat(document.getElementById("newPkgPrice").value);
@@ -1937,6 +2016,7 @@
         bonus,
         cost,
         price,
+        iconUrl,
         badge: "NEW",
         badgeClass: "badge-hot"
       });
