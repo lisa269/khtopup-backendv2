@@ -864,8 +864,8 @@
             <div class="stat-lbl">Avg. Delivery</div>
           </div>
           <div class="stat-box">
-            <div class="stat-val">60+</div>
-            <div class="stat-lbl">Diamond Packs</div>
+            <div class="stat-val">18+</div>
+            <div class="stat-lbl">Games &amp; Apps</div>
           </div>
           <div class="stat-box">
             <div class="stat-val">24/7</div>
@@ -959,10 +959,13 @@
 
       <div class="controls-bar">
         <div class="filter-tabs">
-          <button class="filter-tab active" onclick="filterGames('ALL', this)">All Games</button>
+          <button class="filter-tab active" onclick="filterGames('ALL', this)">All Services (18)</button>
           <button class="filter-tab" onclick="filterGames('MOBA', this)">MOBA</button>
           <button class="filter-tab" onclick="filterGames('Battle Royale', this)">Battle Royale</button>
-          <button class="filter-tab" onclick="filterGames('RPG', this)">RPG &amp; Open World</button>
+          <button class="filter-tab" onclick="filterGames('Shooter', this)">Shooter</button>
+          <button class="filter-tab" onclick="filterGames('RPG', this)">RPG &amp; Sandbox</button>
+          <button class="filter-tab" onclick="filterGames('Live & Social', this)">Live &amp; Social</button>
+          <button class="filter-tab" onclick="filterGames('Gift Cards', this)">Gift Cards</button>
         </div>
         <input type="text" class="search-input" id="searchInput" placeholder="Search MLBB, Free Fire, PUBG..." oninput="renderGames()" />
       </div>
@@ -1038,6 +1041,20 @@
 
         <!-- TAB 2: PRICING & CUSTOM PACKAGE BUILDER -->
         <div id="adminTabPricing" class="hidden">
+          <div class="step-card" style="border-color: rgba(0, 229, 255, 0.45); background: rgba(0, 229, 255, 0.05);">
+            <div class="step-title"><span class="step-num">⚡</span> 1-Click Sync All Services &amp; Icons from Shop2Topup API</div>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Automatically fetch every game, app, voucher, SKU, and official pack icon from your Shop2Topup Reseller account and apply your profit markup.</p>
+            <div class="input-row">
+              <div class="field-group">
+                <label>Auto Retail Profit Markup (%)</label>
+                <input type="number" id="syncMarkupPct" class="field-input" value="18" min="1" max="200" />
+              </div>
+              <div class="field-group" style="display:flex; align-items:flex-end;">
+                <button class="btn-primary" style="width:100%;" id="syncShop2TopupBtn" onclick="syncAllFromShop2Topup()">⚡ Sync All Shop2Topup Services &amp; Icons Now</button>
+              </div>
+            </div>
+            <div id="syncShop2TopupMsg" class="verify-result verify-ok hidden"></div>
+          </div>
           <div class="step-card">
             <div class="step-title"><span class="step-num">+</span> Add New Custom Diamond / Top-Up Package</div>
             <div class="input-row">
@@ -1275,22 +1292,43 @@
     let adminUnlocked = safeGetSession("kht_admin_unlocked") === "1";
 
     const GAME_LOGOS = {
-      mlbb: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22mlBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231e3a8a%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%233b82f6%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%237c3aed%22/%3E%20%3C/linearGradient%3E%20%3ClinearGradient%20id%3D%22mlGold%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fde047%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23f59e0b%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23b45309%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23mlBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22url%28%23mlGold%29%22%20stroke-width%3D%224%22/%3E%20%3Cpolygon%20points%3D%2260%2C18%2092%2C42%2082%2C92%2060%2C104%2038%2C92%2028%2C42%22%20fill%3D%22%230f172a%22%20stroke%3D%22url%28%23mlGold%29%22%20stroke-width%3D%223%22/%3E%20%3Cpath%20d%3D%22M42%2C76%20L42%2C42%20L60%2C58%20L78%2C42%20L78%2C76%22%20fill%3D%22none%22%20stroke%3D%22url%28%23mlGold%29%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%20%3Cpolygon%20points%3D%2260%2C26%2067%2C36%2060%2C46%2053%2C36%22%20fill%3D%22%2338bdf8%22/%3E%20%3Ctext%20x%3D%2260%22%20y%3D%2295%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2213%22%20fill%3D%22%23fde047%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%221%22%3EMLBB%3C/text%3E%20%3C/svg%3E",
-      ff: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22ffBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%237c2d12%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23ea580c%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23dc2626%22/%3E%20%3C/linearGradient%3E%20%3ClinearGradient%20id%3D%22ffFlame%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fef08a%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23fb923c%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23ef4444%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23ffBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23fdba74%22%20stroke-width%3D%224%22/%3E%20%3Cpath%20d%3D%22M62%2C18%20C75%2C35%2088%2C48%2084%2C70%20C81%2C86%2068%2C96%2056%2C96%20C41%2C96%2032%2C82%2036%2C64%20C39%2C50%2048%2C43%2050%2C34%20C53%2C43%2059%2C45%2060%2C36%20C61%2C28%2060%2C22%2062%2C18%20Z%22%20fill%3D%22url%28%23ffFlame%29%22/%3E%20%3Cpath%20d%3D%22M58%2C52%20C65%2C62%2069%2C70%2066%2C80%20C64%2C87%2057%2C91%2052%2C91%20C46%2C91%2042%2C84%2044%2C75%20C46%2C67%2053%2C61%2058%2C52%20Z%22%20fill%3D%22%23fef9c3%22/%3E%20%3Ctext%20x%3D%2260%22%20y%3D%22108%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2213%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%221%22%3EFREE%20FIRE%3C/text%3E%20%3C/svg%3E",
-      pubg: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22pgBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231e293b%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23090d16%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23pgBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23eab308%22%20stroke-width%3D%224%22/%3E%20%3Cpath%20d%3D%22M34%2C54%20C34%2C34%2046%2C24%2060%2C24%20C74%2C24%2086%2C34%2086%2C54%20L86%2C74%20L34%2C74%20Z%22%20fill%3D%22%23334155%22%20stroke%3D%22%23eab308%22%20stroke-width%3D%223%22/%3E%20%3Crect%20x%3D%2238%22%20y%3D%2248%22%20width%3D%2244%22%20height%3D%2214%22%20rx%3D%224%22%20fill%3D%22%230f172a%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%222.5%22/%3E%20%3Cline%20x1%3D%2260%22%20y1%3D%2248%22%20x2%3D%2260%22%20y2%3D%2262%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%222.5%22/%3E%20%3Ctext%20x%3D%2260%22%20y%3D%2296%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2216%22%20fill%3D%22%23facc15%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%221.5%22%3EPUBG%3C/text%3E%20%3C/svg%3E",
-      hok: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22hkBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230c4a6e%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230f172a%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23hkBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%224%22/%3E%20%3Cpolygon%20points%3D%2228%2C74%2036%2C40%2050%2C56%2060%2C30%2070%2C56%2084%2C40%2092%2C74%22%20fill%3D%22%23f59e0b%22%20stroke%3D%22%23fef08a%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%20%3Crect%20x%3D%2228%22%20y%3D%2276%22%20width%3D%2264%22%20height%3D%228%22%20rx%3D%223%22%20fill%3D%22%23fde047%22/%3E%20%3Ctext%20x%3D%2260%22%20y%3D%22102%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2215%22%20fill%3D%22%2338bdf8%22%20text-anchor%3D%22middle%22%20letter-spacing%3D%221.5%22%3EHOK%3C/text%3E%20%3C/svg%3E",
-      genshin: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22gsBg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23312e81%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230e7490%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23gsBg%29%22/%3E%20%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23a5b4fc%22%20stroke-width%3D%224%22/%3E%20%3Cpath%20d%3D%22M60%2C20%20L69%2C51%20L100%2C60%20L69%2C69%20L60%2C100%20L51%2C69%20L20%2C60%20L51%2C51%20Z%22%20fill%3D%22%23fef08a%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22/%3E%20%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%229%22%20fill%3D%22%2338bdf8%22/%3E%20%3C/svg%3E"
-    };
+      "mlbb": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231e3a8a%22/%3E%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%233b82f6%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%237c3aed%22/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%22gd%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fde047%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23b45309%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23g1%29%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22url%28%23gd%29%22%20stroke-width%3D%224%22/%3E%3Cpolygon%20points%3D%2260%2C18%2092%2C42%2082%2C92%2060%2C104%2038%2C92%2028%2C42%22%20fill%3D%22%230f172a%22%20stroke%3D%22url%28%23gd%29%22%20stroke-width%3D%223%22/%3E%3Cpath%20d%3D%22M42%2C76%20L42%2C42%20L60%2C58%20L78%2C42%20L78%2C76%22%20fill%3D%22none%22%20stroke%3D%22url%28%23gd%29%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Cpolygon%20points%3D%2260%2C26%2067%2C36%2060%2C46%2053%2C36%22%20fill%3D%22%2338bdf8%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2295%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2213%22%20fill%3D%22%23fde047%22%20text-anchor%3D%22middle%22%3EMLBB%3C/text%3E%3C/svg%3E",
+      "ff": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22ff1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%237c2d12%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23dc2626%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22url%28%23ff1%29%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23fdba74%22%20stroke-width%3D%224%22/%3E%3Cpath%20d%3D%22M62%2C18%20C75%2C35%2088%2C48%2084%2C70%20C81%2C86%2068%2C96%2056%2C96%20C41%2C96%2032%2C82%2036%2C64%20C39%2C50%2048%2C43%2050%2C34%20C53%2C43%2059%2C45%2060%2C36%20C61%2C28%2060%2C22%2062%2C18%20Z%22%20fill%3D%22%23fb923c%22/%3E%3Cpath%20d%3D%22M58%2C52%20C65%2C62%2069%2C70%2066%2C80%20C64%2C87%2057%2C91%2052%2C91%20C46%2C91%2042%2C84%2044%2C75%20C46%2C67%2053%2C61%2058%2C52%20Z%22%20fill%3D%22%23fef9c3%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%22108%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2213%22%20fill%3D%22%23fff%22%20text-anchor%3D%22middle%22%3EFREE%20FIRE%3C/text%3E%3C/svg%3E",
+      "pubg": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%230f172a%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23eab308%22%20stroke-width%3D%224%22/%3E%3Cpath%20d%3D%22M34%2C54%20C34%2C34%2046%2C24%2060%2C24%20C74%2C24%2086%2C34%2086%2C54%20L86%2C74%20L34%2C74%20Z%22%20fill%3D%22%23334155%22%20stroke%3D%22%23eab308%22%20stroke-width%3D%223%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2248%22%20width%3D%2244%22%20height%3D%2214%22%20rx%3D%224%22%20fill%3D%22%230f172a%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%222.5%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2296%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2216%22%20fill%3D%22%23facc15%22%20text-anchor%3D%22middle%22%3EPUBG%3C/text%3E%3C/svg%3E",
+      "hok": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%230c4a6e%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%224%22/%3E%3Cpolygon%20points%3D%2228%2C74%2036%2C40%2050%2C56%2060%2C30%2070%2C56%2084%2C40%2092%2C74%22%20fill%3D%22%23f59e0b%22%20stroke%3D%22%23fef08a%22%20stroke-width%3D%222.5%22/%3E%3Crect%20x%3D%2228%22%20y%3D%2276%22%20width%3D%2264%22%20height%3D%228%22%20rx%3D%223%22%20fill%3D%22%23fde047%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%22102%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2215%22%20fill%3D%22%2338bdf8%22%20text-anchor%3D%22middle%22%3EHOK%3C/text%3E%3C/svg%3E",
+      "genshin": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%23312e81%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23a5b4fc%22%20stroke-width%3D%224%22/%3E%3Cpath%20d%3D%22M60%2C20%20L69%2C51%20L100%2C60%20L69%2C69%20L60%2C100%20L51%2C69%20L20%2C60%20L51%2C51%20Z%22%20fill%3D%22%23fef08a%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%229%22%20fill%3D%22%2338bdf8%22/%3E%3C/svg%3E",
+      "mcgg": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%233b0764%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23c084fc%22%20stroke-width%3D%224%22/%3E%3Cpolygon%20points%3D%2260%2C22%2086%2C52%2074%2C88%2046%2C88%2034%2C52%22%20fill%3D%22%237e22ce%22%20stroke%3D%22%23fde047%22%20stroke-width%3D%223%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2266%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2218%22%20fill%3D%22%23fde047%22%20text-anchor%3D%22middle%22%3EMCGG%3C/text%3E%3C/svg%3E",
+      "roblox": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%230f172a%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23e2e8f0%22%20stroke-width%3D%224%22/%3E%3Cg%20transform%3D%22rotate%2814%2060%2060%29%22%3E%3Crect%20x%3D%2228%22%20y%3D%2228%22%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%228%22%20fill%3D%22%23ffffff%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2251%22%20width%3D%2218%22%20height%3D%2218%22%20rx%3D%222%22%20fill%3D%22%230f172a%22/%3E%3C/g%3E%3C/svg%3E",
+      "valorant": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%2318181b%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23f43f5e%22%20stroke-width%3D%224%22/%3E%3Cpolygon%20points%3D%2224%2C34%2044%2C34%2068%2C84%2048%2C84%22%20fill%3D%22%23f43f5e%22/%3E%3Cpolygon%20points%3D%2296%2C34%2076%2C34%2064%2C60%2084%2C60%22%20fill%3D%22%23f43f5e%22/%3E%3C/svg%3E",
+      "bloodstrike": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%23450a0a%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23ef4444%22%20stroke-width%3D%224%22/%3E%3Cpolygon%20points%3D%2260%2C22%2088%2C60%2060%2C98%2032%2C60%22%20fill%3D%22%23dc2626%22%20stroke%3D%22%23fca5a5%22%20stroke-width%3D%223%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2266%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2218%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EBS%3C/text%3E%3C/svg%3E",
+      "codm": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%23090d16%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%224%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2268%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2226%22%20fill%3D%22%23facc15%22%20text-anchor%3D%22middle%22%3ECODM%3C/text%3E%3C/svg%3E",
+      "arenabreakout": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%231c1917%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23fb923c%22%20stroke-width%3D%224%22/%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%2228%22%20fill%3D%22none%22%20stroke%3D%22%23fb923c%22%20stroke-width%3D%224%22/%3E%3Cline%20x1%3D%2260%22%20y1%3D%2222%22%20x2%3D%2260%22%20y2%3D%2298%22%20stroke%3D%22%23fb923c%22%20stroke-width%3D%223%22/%3E%3Cline%20x1%3D%2222%22%20y1%3D%2260%22%20x2%3D%2298%22%20y2%3D%2260%22%20stroke%3D%22%23fb923c%22%20stroke-width%3D%223%22/%3E%3C/svg%3E",
+      "mla": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%231e1b4b%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%224%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2268%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2226%22%20fill%3D%22%2338bdf8%22%20text-anchor%3D%22middle%22%3EMLA%3C/text%3E%3C/svg%3E",
+      "identityv": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%231e1b4b%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23818cf8%22%20stroke-width%3D%224%22/%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%2226%22%20fill%3D%22%23312e81%22%20stroke%3D%22%23c7d2fe%22%20stroke-width%3D%223%22/%3E%3Cline%20x1%3D%2248%22%20y1%3D%2248%22%20x2%3D%2272%22%20y2%3D%2272%22%20stroke%3D%22%23f43f5e%22%20stroke-width%3D%225%22/%3E%3Cline%20x1%3D%2272%22%20y1%3D%2248%22%20x2%3D%2248%22%20y2%3D%2272%22%20stroke%3D%22%23f43f5e%22%20stroke-width%3D%225%22/%3E%3C/svg%3E",
+      "zepeto": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%234c1d95%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23e879f9%22%20stroke-width%3D%224%22/%3E%3Cpath%20d%3D%22M36%2C38%20L84%2C38%20L36%2C82%20L84%2C82%22%20fill%3D%22none%22%20stroke%3D%22%23f0abfc%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E",
+      "bigo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%230369a1%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%224%22/%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%2228%22%20fill%3D%22%230ea5e9%22%20stroke%3D%22%23fff%22%20stroke-width%3D%223%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2267%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2218%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EBIGO%3C/text%3E%3C/svg%3E",
+      "poppo": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%23831843%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23f472b6%22%20stroke-width%3D%224%22/%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%2228%22%20fill%3D%22%23db2777%22%20stroke%3D%22%23fbcfe8%22%20stroke-width%3D%223%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2267%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2216%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EPOPPO%3C/text%3E%3C/svg%3E",
+      "steam": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%230f172a%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%224%22/%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2246%22%20r%3D%2218%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%226%22/%3E%3Ccircle%20cx%3D%2244%22%20cy%3D%2276%22%20r%3D%2212%22%20fill%3D%22%2338bdf8%22/%3E%3Cline%20x1%3D%2244%22%20y1%3D%2276%22%20x2%3D%2266%22%20y2%3D%2254%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E",
+      "psn": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%231d4ed8%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%22110%22%20height%3D%22110%22%20rx%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%2393c5fd%22%20stroke-width%3D%224%22/%3E%3Ctext%20x%3D%2260%22%20y%3D%2268%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2228%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EPSN%3C/text%3E%3C/svg%3E"
+};
 
     const PACK_ICONS = {
-      ml_diamond: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22d1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a5f3fc%22/%3E%20%3Cstop%20offset%3D%2245%25%22%20stop-color%3D%22%230ea5e9%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231d4ed8%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2224%2C14%2056%2C14%2072%2C32%2040%2C68%208%2C32%22%20fill%3D%22url%28%23d1%29%22%20stroke%3D%22%23e0f2fe%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%20%3Cpolygon%20points%3D%2224%2C14%2040%2C32%208%2C32%22%20fill%3D%22%23bae6fd%22%20opacity%3D%220.7%22/%3E%20%3Cpolygon%20points%3D%2256%2C14%2072%2C32%2040%2C32%22%20fill%3D%22%230284c7%22%20opacity%3D%220.6%22/%3E%20%3Cpolygon%20points%3D%2224%2C14%2056%2C14%2040%2C32%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.85%22/%3E%20%3Cpolygon%20points%3D%2240%2C32%2072%2C32%2040%2C68%22%20fill%3D%22%231e40af%22%20opacity%3D%220.55%22/%3E%20%3C/svg%3E",
-      ml_diamond_stack: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22ds1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fde047%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230284c7%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2218%2C24%2038%2C24%2048%2C36%2028%2C60%208%2C36%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%20%3Cpolygon%20points%3D%2242%2C24%2062%2C24%2072%2C36%2052%2C60%2032%2C36%22%20fill%3D%22%230284c7%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%20%3Cpolygon%20points%3D%2226%2C12%2054%2C12%2068%2C28%2040%2C64%2012%2C28%22%20fill%3D%22url%28%23ds1%29%22%20stroke%3D%22%23fef08a%22%20stroke-width%3D%222.5%22/%3E%20%3Cpolygon%20points%3D%2226%2C12%2054%2C12%2040%2C28%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22/%3E%20%3C/svg%3E",
-      ml_pass: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22wp%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a855f7%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%236366f1%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23ec4899%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20x%3D%2212%22%20y%3D%2214%22%20width%3D%2256%22%20height%3D%2252%22%20rx%3D%2212%22%20fill%3D%22url%28%23wp%29%22%20stroke%3D%22%23fde047%22%20stroke-width%3D%223%22/%3E%20%3Cpolygon%20points%3D%2240%2C22%2054%2C36%2040%2C54%2026%2C36%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22/%3E%20%3Ctext%20x%3D%2240%22%20y%3D%2262%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%229%22%20fill%3D%22%23fde047%22%20text-anchor%3D%22middle%22%3EPASS%3C/text%3E%20%3C/svg%3E",
-      ff_diamond: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22ffd%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2367e8f9%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%2306b6d4%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230f766e%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2240%2C10%2068%2C36%2040%2C70%2012%2C36%22%20fill%3D%22url%28%23ffd%29%22%20stroke%3D%22%23cffafe%22%20stroke-width%3D%222.5%22/%3E%20%3Cpolygon%20points%3D%2240%2C10%2054%2C36%2040%2C46%2026%2C36%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.8%22/%3E%20%3Ccircle%20cx%3D%2258%22%20cy%3D%2220%22%20r%3D%225%22%20fill%3D%22%23f97316%22/%3E%20%3C/svg%3E",
-      pubg_uc: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22ucg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fef08a%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23f59e0b%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23b45309%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2240%2C10%2068%2C26%2068%2C54%2040%2C70%2012%2C54%2012%2C26%22%20fill%3D%22url%28%23ucg%29%22%20stroke%3D%22%23fef9c3%22%20stroke-width%3D%222.5%22/%3E%20%3Ctext%20x%3D%2240%22%20y%3D%2247%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2222%22%20fill%3D%22%231e293b%22%20text-anchor%3D%22middle%22%3EUC%3C/text%3E%20%3C/svg%3E",
-      hok_token: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2230%22%20fill%3D%22%230284c7%22%20stroke%3D%22%23fde047%22%20stroke-width%3D%224%22/%3E%20%3Cpolygon%20points%3D%2240%2C18%2056%2C40%2040%2C62%2024%2C40%22%20fill%3D%22%23facc15%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%20%3C/svg%3E",
-      genshin_crystal: "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22gsc%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23e0e7ff%22/%3E%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23818cf8%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2338bdf8%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Cpolygon%20points%3D%2240%2C8%2062%2C32%2054%2C68%2026%2C68%2018%2C32%22%20fill%3D%22url%28%23gsc%29%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222.5%22/%3E%20%3Cpath%20d%3D%22M40%2C22%20L44%2C36%20L58%2C40%20L44%2C44%20L40%2C58%20L36%2C44%20L22%2C40%20L36%2C36%20Z%22%20fill%3D%22%23fef08a%22/%3E%20%3C/svg%3E"
-    };
+      "dia_sm": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22d1%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a5f3fc%22/%3E%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%230ea5e9%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231d4ed8%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon%20points%3D%2224%2C16%2056%2C16%2070%2C34%2040%2C68%2010%2C34%22%20fill%3D%22url%28%23d1%29%22%20stroke%3D%22%23e0f2fe%22%20stroke-width%3D%222.5%22/%3E%3Cpolygon%20points%3D%2224%2C16%2056%2C16%2040%2C34%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.85%22/%3E%3C/svg%3E",
+      "dia_md": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cpolygon%20points%3D%2216%2C28%2036%2C28%2046%2C40%2026%2C64%206%2C40%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpolygon%20points%3D%2244%2C28%2064%2C28%2074%2C40%2054%2C64%2034%2C40%22%20fill%3D%22%230284c7%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpolygon%20points%3D%2226%2C14%2054%2C14%2066%2C30%2040%2C62%2014%2C30%22%20fill%3D%22%230ea5e9%22%20stroke%3D%22%23bae6fd%22%20stroke-width%3D%222.5%22/%3E%3Cpolygon%20points%3D%2226%2C14%2054%2C14%2040%2C30%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22/%3E%3C/svg%3E",
+      "dia_lg": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cpolygon%20points%3D%2214%2C34%2032%2C34%2042%2C46%2023%2C68%204%2C46%22%20fill%3D%22%230284c7%22%20stroke%3D%22%23e0f2fe%22%20stroke-width%3D%222%22/%3E%3Cpolygon%20points%3D%2248%2C34%2066%2C34%2076%2C46%2057%2C68%2038%2C46%22%20fill%3D%22%231d4ed8%22%20stroke%3D%22%23e0f2fe%22%20stroke-width%3D%222%22/%3E%3Cpolygon%20points%3D%2222%2C20%2042%2C20%2052%2C32%2032%2C56%2012%2C32%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpolygon%20points%3D%2238%2C20%2058%2C20%2068%2C32%2048%2C56%2028%2C32%22%20fill%3D%22%230ea5e9%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Cpolygon%20points%3D%2228%2C10%2052%2C10%2064%2C24%2040%2C54%2016%2C24%22%20fill%3D%22%23fde047%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222.5%22/%3E%3C/svg%3E",
+      "dia_mega": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Crect%20x%3D%2214%22%20y%3D%2234%22%20width%3D%2252%22%20height%3D%2234%22%20rx%3D%228%22%20fill%3D%22%231e3a8a%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%223%22/%3E%3Cpolygon%20points%3D%2216%2C34%2040%2C14%2064%2C34%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222.5%22/%3E%3Cpolygon%20points%3D%2228%2C28%2052%2C28%2062%2C40%2040%2C64%2018%2C40%22%20fill%3D%22%23fde047%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Ccircle%20cx%3D%2262%22%20cy%3D%2218%22%20r%3D%226%22%20fill%3D%22%23facc15%22/%3E%3C/svg%3E",
+      "pass_card": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22wp%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a855f7%22/%3E%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%236366f1%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23ec4899%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20x%3D%2212%22%20y%3D%2214%22%20width%3D%2256%22%20height%3D%2252%22%20rx%3D%2212%22%20fill%3D%22url%28%23wp%29%22%20stroke%3D%22%23fde047%22%20stroke-width%3D%223%22/%3E%3Cpolygon%20points%3D%2240%2C22%2054%2C36%2040%2C54%2026%2C36%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2262%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%229%22%20fill%3D%22%23fde047%22%20text-anchor%3D%22middle%22%3EPASS%3C/text%3E%3C/svg%3E",
+      "ff_dia": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cpolygon%20points%3D%2240%2C10%2068%2C36%2040%2C70%2012%2C36%22%20fill%3D%22%2306b6d4%22%20stroke%3D%22%23cffafe%22%20stroke-width%3D%222.5%22/%3E%3Cpolygon%20points%3D%2240%2C10%2054%2C36%2040%2C46%2026%2C36%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.85%22/%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2220%22%20r%3D%226%22%20fill%3D%22%23f97316%22/%3E%3C/svg%3E",
+      "pubg_uc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cpolygon%20points%3D%2240%2C10%2068%2C26%2068%2C54%2040%2C70%2012%2C54%2012%2C26%22%20fill%3D%22%23f59e0b%22%20stroke%3D%22%23fef9c3%22%20stroke-width%3D%222.5%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2247%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2222%22%20fill%3D%22%231e293b%22%20text-anchor%3D%22middle%22%3EUC%3C/text%3E%3C/svg%3E",
+      "hok_tok": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2230%22%20fill%3D%22%230284c7%22%20stroke%3D%22%23fde047%22%20stroke-width%3D%224%22/%3E%3Cpolygon%20points%3D%2240%2C18%2056%2C40%2040%2C62%2024%2C40%22%20fill%3D%22%23facc15%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3C/svg%3E",
+      "genshin_cry": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cpolygon%20points%3D%2240%2C8%2062%2C32%2054%2C68%2026%2C68%2018%2C32%22%20fill%3D%22%23818cf8%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222.5%22/%3E%3Cpath%20d%3D%22M40%2C22%20L44%2C36%20L58%2C40%20L44%2C44%20L40%2C58%20L36%2C44%20L22%2C40%20L36%2C36%20Z%22%20fill%3D%22%23fef08a%22/%3E%3C/svg%3E",
+      "robux": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cpolygon%20points%3D%2240%2C10%2066%2C25%2066%2C55%2040%2C70%2014%2C55%2014%2C25%22%20fill%3D%22%23facc15%22%20stroke%3D%22%23fef08a%22%20stroke-width%3D%223%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2231%22%20width%3D%2218%22%20height%3D%2218%22%20rx%3D%223%22%20fill%3D%22%230f172a%22/%3E%3C/svg%3E",
+      "val_vp": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2230%22%20fill%3D%22%23f43f5e%22%20stroke%3D%22%23fecdd3%22%20stroke-width%3D%223%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2248%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2222%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EVP%3C/text%3E%3C/svg%3E",
+      "gold_coin": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2230%22%20fill%3D%22%23eab308%22%20stroke%3D%22%23fef08a%22%20stroke-width%3D%224%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2248%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2222%22%20fill%3D%22%23422006%22%20text-anchor%3D%22middle%22%3EG%3C/text%3E%3C/svg%3E",
+      "cod_cp": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2230%22%20fill%3D%22%231e293b%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%224%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2248%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2222%22%20fill%3D%22%23facc15%22%20text-anchor%3D%22middle%22%3ECP%3C/text%3E%3C/svg%3E",
+      "live_gem": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cpolygon%20points%3D%2240%2C12%2068%2C36%2040%2C68%2012%2C36%22%20fill%3D%22%23ec4899%22%20stroke%3D%22%23fbcfe8%22%20stroke-width%3D%223%22/%3E%3Cpolygon%20points%3D%2240%2C12%2054%2C36%2040%2C46%2026%2C36%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.8%22/%3E%3C/svg%3E",
+      "gift_card": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Crect%20x%3D%2210%22%20y%3D%2218%22%20width%3D%2260%22%20height%3D%2244%22%20rx%3D%2210%22%20fill%3D%22%230284c7%22%20stroke%3D%22%23bae6fd%22%20stroke-width%3D%223%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2228%22%20width%3D%2260%22%20height%3D%2210%22%20fill%3D%22%230f172a%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2253%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22900%22%20font-size%3D%2213%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3ECODE%3C/text%3E%3C/svg%3E"
+};
 
     function getGameLogoSrc(g) {
       if (g.logoUrl) return g.logoUrl;
@@ -1302,151 +1340,1542 @@
       if (p.iconUrl) return p.iconUrl;
       const grp = (p.group || "").toLowerCase();
       const nm = (p.name || "").toLowerCase();
-      if (g.id === "mlbb") {
-        if (grp.includes("pass") || nm.includes("pass")) return PACK_ICONS.ml_pass;
-        if (p.price >= 10 || grp.includes("2x")) return PACK_ICONS.ml_diamond_stack;
-        return PACK_ICONS.ml_diamond;
+      const price = Number(p.price || 0);
+
+      if (grp.includes("pass") || grp.includes("bundle") || nm.includes("pass") || nm.includes("membership") || nm.includes("card") || nm.includes("welkin") || nm.includes("case")) {
+        return PACK_ICONS.pass_card;
+      }
+      if (g.id === "mlbb" || g.id === "mcgg") {
+        if (price >= 45) return PACK_ICONS.dia_mega;
+        if (price >= 12) return PACK_ICONS.dia_lg;
+        if (price >= 3.5) return PACK_ICONS.dia_md;
+        return PACK_ICONS.dia_sm;
       }
       if (g.id === "ff") {
-        if (grp.includes("pass") || nm.includes("membership")) return PACK_ICONS.ml_pass;
-        return PACK_ICONS.ff_diamond;
+        if (price >= 15) return PACK_ICONS.dia_lg;
+        return PACK_ICONS.ff_dia;
       }
       if (g.id === "pubg") return PACK_ICONS.pubg_uc;
-      if (g.id === "hok") {
-        if (grp.includes("pass") || nm.includes("card")) return PACK_ICONS.ml_pass;
-        return PACK_ICONS.hok_token;
-      }
-      if (g.id === "genshin") {
-        if (grp.includes("pass") || nm.includes("welkin")) return PACK_ICONS.ml_pass;
-        return PACK_ICONS.genshin_crystal;
-      }
-      return PACK_ICONS.ml_diamond;
+      if (g.id === "hok") return PACK_ICONS.hok_tok;
+      if (g.id === "genshin") return PACK_ICONS.genshin_cry;
+      if (g.id === "roblox") return PACK_ICONS.robux;
+      if (g.id === "valorant") return PACK_ICONS.val_vp;
+      if (g.id === "bloodstrike") return PACK_ICONS.gold_coin;
+      if (g.id === "codm") return PACK_ICONS.cod_cp;
+      if (g.id === "arenabreakout") return PACK_ICONS.gold_coin;
+      if (g.id === "mla" || g.id === "identityv") return PACK_ICONS.dia_md;
+      if (g.id === "zepeto" || g.id === "bigo" || g.id === "poppo") return PACK_ICONS.live_gem;
+      if (g.id === "steam" || g.id === "psn" || g.category === "Gift Cards") return PACK_ICONS.gift_card;
+      return PACK_ICONS.dia_sm;
     }
 
     const DEFAULT_GAMES = [
       {
-        id: "mlbb",
-        name: "Mobile Legends: Bang Bang",
-        publisher: "Moonton",
-        category: "MOBA",
-        icon: "⚔️",
-        gradient: "linear-gradient(135deg, #1d4ed8, #7c3aed)",
-        idLabel: "User ID",
-        zoneLabel: "Zone ID",
-        hasZone: true,
-        packages: [
-          { id: "ml_wk", sku: "16642", group: "Passes & Bundles", name: "Weekly Diamond Pass", bonus: "220 Diamonds + Starlight Pts", cost: 1.45, price: 1.79, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "ml_wk3", sku: "16643", group: "Passes & Bundles", name: "3x Weekly Diamond Pass", bonus: "660 Diamonds + 3x Starlight", cost: 4.35, price: 5.29, badge: "PASS", badgeClass: "badge-pass" },
-          { id: "ml_tw", sku: "33", group: "Passes & Bundles", name: "Twilight Pass", bonus: "Exclusive Miya Skin + Rewards", cost: 7.90, price: 9.69, badge: "PASS", badgeClass: "badge-pass" },
-          { id: "ml_2x50", sku: "2x50", group: "2x First Top-Up", name: "50 + 50 Bonus Diamonds", bonus: "100 Total (First Recharge)", cost: 0.75, price: 0.95, badge: "2X", badgeClass: "badge-2x" },
-          { id: "ml_2x150", sku: "2x150", group: "2x First Top-Up", name: "150 + 150 Bonus Diamonds", bonus: "300 Total (First Recharge)", cost: 2.25, price: 2.75, badge: "2X", badgeClass: "badge-2x" },
-          { id: "ml_2x250", sku: "2x250", group: "2x First Top-Up", name: "250 + 250 Bonus Diamonds", bonus: "500 Total (First Recharge)", cost: 3.60, price: 4.35, badge: "2X", badgeClass: "badge-2x" },
-          { id: "ml_2x500", sku: "2x500", group: "2x First Top-Up", name: "500 + 500 Bonus Diamonds", bonus: "1,000 Total (First Recharge)", cost: 7.35, price: 8.85, badge: "2X", badgeClass: "badge-2x" },
-          { id: "ml_14", sku: "212", group: "Diamonds", name: "14 Diamonds", bonus: "13 + 1 Bonus", cost: 0.24, price: 0.32, badge: "", badgeClass: "" },
-          { id: "ml_42", sku: "213", group: "Diamonds", name: "42 Diamonds", bonus: "38 + 4 Bonus", cost: 0.72, price: 0.89, badge: "", badgeClass: "" },
-          { id: "ml_86", sku: "13", group: "Diamonds", name: "86 Diamonds", bonus: "78 + 8 Bonus", cost: 1.20, price: 1.45, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "ml_172", sku: "23", group: "Diamonds", name: "172 Diamonds", bonus: "156 + 16 Bonus", cost: 2.39, price: 2.85, badge: "", badgeClass: "" },
-          { id: "ml_257", sku: "25", group: "Diamonds", name: "257 Diamonds", bonus: "234 + 23 Bonus", cost: 3.55, price: 4.20, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "ml_344", sku: "214", group: "Diamonds", name: "344 Diamonds", bonus: "312 + 32 Bonus", cost: 4.78, price: 5.65, badge: "", badgeClass: "" },
-          { id: "ml_429", sku: "215", group: "Diamonds", name: "429 Diamonds", bonus: "390 + 39 Bonus", cost: 5.95, price: 7.05, badge: "", badgeClass: "" },
-          { id: "ml_514", sku: "216", group: "Diamonds", name: "514 Diamonds", bonus: "468 + 46 Bonus", cost: 7.15, price: 8.40, badge: "", badgeClass: "" },
-          { id: "ml_600", sku: "217", group: "Diamonds", name: "600 Diamonds", bonus: "546 + 54 Bonus", cost: 8.35, price: 9.75, badge: "", badgeClass: "" },
-          { id: "ml_706", sku: "26", group: "Diamonds", name: "706 Diamonds", bonus: "625 + 81 Bonus", cost: 9.50, price: 11.20, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "ml_878", sku: "218", group: "Diamonds", name: "878 Diamonds", bonus: "781 + 97 Bonus", cost: 11.90, price: 13.95, badge: "", badgeClass: "" },
-          { id: "ml_963", sku: "219", group: "Diamonds", name: "963 Diamonds", bonus: "859 + 104 Bonus", cost: 13.10, price: 15.30, badge: "", badgeClass: "" },
-          { id: "ml_1412", sku: "27", group: "Diamonds", name: "1,412 Diamonds", bonus: "1250 + 162 Bonus", cost: 19.00, price: 22.20, badge: "", badgeClass: "" },
-          { id: "ml_2195", sku: "28", group: "Diamonds", name: "2,195 Diamonds", bonus: "1860 + 335 Bonus", cost: 28.60, price: 33.50, badge: "", badgeClass: "" },
-          { id: "ml_3688", sku: "29", group: "Diamonds", name: "3,688 Diamonds", bonus: "3099 + 589 Bonus", cost: 47.80, price: 55.90, badge: "", badgeClass: "" },
-          { id: "ml_5532", sku: "30", group: "Diamonds", name: "5,532 Diamonds", bonus: "4649 + 883 Bonus", cost: 71.80, price: 83.90, badge: "", badgeClass: "" },
-          { id: "ml_9288", sku: "32", group: "Diamonds", name: "9,288 Diamonds", bonus: "7740 + 1548 Bonus", cost: 119.50, price: 139.00, badge: "", badgeClass: "" }
-        ]
+            "id": "mlbb",
+            "name": "Mobile Legends: Bang Bang",
+            "publisher": "Moonton",
+            "category": "MOBA",
+            "gradient": "linear-gradient(135deg, #1d4ed8, #7c3aed)",
+            "idLabel": "User ID",
+            "zoneLabel": "Zone ID",
+            "hasZone": true,
+            "packages": [
+                  {
+                        "id": "ml_wk",
+                        "sku": "16642",
+                        "group": "Passes & Bundles",
+                        "name": "Weekly Diamond Pass",
+                        "bonus": "220 Diamonds + Starlight Pts",
+                        "cost": 1.45,
+                        "price": 1.79,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "ml_wk2",
+                        "sku": "16642x2",
+                        "group": "Passes & Bundles",
+                        "name": "2x Weekly Diamond Pass",
+                        "bonus": "440 Diamonds + 2x Starlight",
+                        "cost": 2.9,
+                        "price": 3.55,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "ml_wk3",
+                        "sku": "16643",
+                        "group": "Passes & Bundles",
+                        "name": "3x Weekly Diamond Pass",
+                        "bonus": "660 Diamonds + 3x Starlight",
+                        "cost": 4.35,
+                        "price": 5.29,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "ml_tw",
+                        "sku": "33",
+                        "group": "Passes & Bundles",
+                        "name": "Twilight Pass",
+                        "bonus": "Exclusive Miya Skin + Rewards",
+                        "cost": 7.9,
+                        "price": 9.69,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "ml_2x50",
+                        "sku": "2x50",
+                        "group": "2x First Top-Up",
+                        "name": "50 + 50 Bonus Diamonds",
+                        "bonus": "100 Total (First Recharge)",
+                        "cost": 0.75,
+                        "price": 0.95,
+                        "badge": "2X",
+                        "badgeClass": "badge-2x"
+                  },
+                  {
+                        "id": "ml_2x150",
+                        "sku": "2x150",
+                        "group": "2x First Top-Up",
+                        "name": "150 + 150 Bonus Diamonds",
+                        "bonus": "300 Total (First Recharge)",
+                        "cost": 2.25,
+                        "price": 2.75,
+                        "badge": "2X",
+                        "badgeClass": "badge-2x"
+                  },
+                  {
+                        "id": "ml_2x250",
+                        "sku": "2x250",
+                        "group": "2x First Top-Up",
+                        "name": "250 + 250 Bonus Diamonds",
+                        "bonus": "500 Total (First Recharge)",
+                        "cost": 3.6,
+                        "price": 4.35,
+                        "badge": "2X",
+                        "badgeClass": "badge-2x"
+                  },
+                  {
+                        "id": "ml_2x500",
+                        "sku": "2x500",
+                        "group": "2x First Top-Up",
+                        "name": "500 + 500 Bonus Diamonds",
+                        "bonus": "1,000 Total (First Recharge)",
+                        "cost": 7.35,
+                        "price": 8.85,
+                        "badge": "2X",
+                        "badgeClass": "badge-2x"
+                  },
+                  {
+                        "id": "ml_14",
+                        "sku": "212",
+                        "group": "Diamonds",
+                        "name": "14 Diamonds",
+                        "bonus": "13 + 1 Bonus",
+                        "cost": 0.24,
+                        "price": 0.32,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_42",
+                        "sku": "213",
+                        "group": "Diamonds",
+                        "name": "42 Diamonds",
+                        "bonus": "38 + 4 Bonus",
+                        "cost": 0.72,
+                        "price": 0.89,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_86",
+                        "sku": "13",
+                        "group": "Diamonds",
+                        "name": "86 Diamonds",
+                        "bonus": "78 + 8 Bonus",
+                        "cost": 1.2,
+                        "price": 1.45,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "ml_172",
+                        "sku": "23",
+                        "group": "Diamonds",
+                        "name": "172 Diamonds",
+                        "bonus": "156 + 16 Bonus",
+                        "cost": 2.39,
+                        "price": 2.85,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_257",
+                        "sku": "25",
+                        "group": "Diamonds",
+                        "name": "257 Diamonds",
+                        "bonus": "234 + 23 Bonus",
+                        "cost": 3.55,
+                        "price": 4.2,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "ml_344",
+                        "sku": "214",
+                        "group": "Diamonds",
+                        "name": "344 Diamonds",
+                        "bonus": "312 + 32 Bonus",
+                        "cost": 4.78,
+                        "price": 5.65,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_429",
+                        "sku": "215",
+                        "group": "Diamonds",
+                        "name": "429 Diamonds",
+                        "bonus": "390 + 39 Bonus",
+                        "cost": 5.95,
+                        "price": 7.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_514",
+                        "sku": "216",
+                        "group": "Diamonds",
+                        "name": "514 Diamonds",
+                        "bonus": "468 + 46 Bonus",
+                        "cost": 7.15,
+                        "price": 8.4,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_600",
+                        "sku": "217",
+                        "group": "Diamonds",
+                        "name": "600 Diamonds",
+                        "bonus": "546 + 54 Bonus",
+                        "cost": 8.35,
+                        "price": 9.75,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_706",
+                        "sku": "26",
+                        "group": "Diamonds",
+                        "name": "706 Diamonds",
+                        "bonus": "625 + 81 Bonus",
+                        "cost": 9.5,
+                        "price": 11.2,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "ml_878",
+                        "sku": "218",
+                        "group": "Diamonds",
+                        "name": "878 Diamonds",
+                        "bonus": "781 + 97 Bonus",
+                        "cost": 11.9,
+                        "price": 13.95,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_963",
+                        "sku": "219",
+                        "group": "Diamonds",
+                        "name": "963 Diamonds",
+                        "bonus": "859 + 104 Bonus",
+                        "cost": 13.1,
+                        "price": 15.3,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_1412",
+                        "sku": "27",
+                        "group": "Diamonds",
+                        "name": "1,412 Diamonds",
+                        "bonus": "1250 + 162 Bonus",
+                        "cost": 19.0,
+                        "price": 22.2,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_2195",
+                        "sku": "28",
+                        "group": "Diamonds",
+                        "name": "2,195 Diamonds",
+                        "bonus": "1860 + 335 Bonus",
+                        "cost": 28.6,
+                        "price": 33.5,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_3688",
+                        "sku": "29",
+                        "group": "Diamonds",
+                        "name": "3,688 Diamonds",
+                        "bonus": "3099 + 589 Bonus",
+                        "cost": 47.8,
+                        "price": 55.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_5532",
+                        "sku": "30",
+                        "group": "Diamonds",
+                        "name": "5,532 Diamonds",
+                        "bonus": "4649 + 883 Bonus",
+                        "cost": 71.8,
+                        "price": 83.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ml_9288",
+                        "sku": "32",
+                        "group": "Diamonds",
+                        "name": "9,288 Diamonds",
+                        "bonus": "7740 + 1548 Bonus",
+                        "cost": 119.5,
+                        "price": 139.0,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
       },
       {
-        id: "ff",
-        name: "Free Fire",
-        publisher: "Garena",
-        category: "Battle Royale",
-        icon: "🔥",
-        gradient: "linear-gradient(135deg, #ea580c, #dc2626)",
-        idLabel: "Player ID",
-        zoneLabel: "",
-        hasZone: false,
-        packages: [
-          { id: "ff_wklite", sku: "ff_wklite", group: "Passes & Bundles", name: "Weekly Lite Membership", bonus: "Instant + Daily Diamonds", cost: 0.40, price: 0.50, badge: "PASS", badgeClass: "badge-pass" },
-          { id: "ff_wk", sku: "ff_wk", group: "Passes & Bundles", name: "Weekly Membership", bonus: "450 Diamonds Total", cost: 1.55, price: 1.85, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "ff_mo", sku: "ff_mo", group: "Passes & Bundles", name: "Monthly Membership", bonus: "2,600 Diamonds Total", cost: 7.60, price: 8.95, badge: "PASS", badgeClass: "badge-pass" },
-          { id: "ff_25", sku: "ff_25", group: "Diamonds", name: "25 Diamonds", bonus: "Instant Direct", cost: 0.24, price: 0.30, badge: "", badgeClass: "" },
-          { id: "ff_100", sku: "ff_100", group: "Diamonds", name: "100 Diamonds", bonus: "+10 Bonus", cost: 0.88, price: 1.05, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "ff_310", sku: "ff_310", group: "Diamonds", name: "310 Diamonds", bonus: "+31 Bonus", cost: 2.65, price: 3.15, badge: "", badgeClass: "" },
-          { id: "ff_520", sku: "ff_520", group: "Diamonds", name: "520 Diamonds", bonus: "+52 Bonus", cost: 4.40, price: 5.20, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "ff_1060", sku: "ff_1060", group: "Diamonds", name: "1,060 Diamonds", bonus: "+106 Bonus", cost: 8.80, price: 10.30, badge: "", badgeClass: "" },
-          { id: "ff_2180", sku: "ff_2180", group: "Diamonds", name: "2,180 Diamonds", bonus: "+218 Bonus", cost: 17.80, price: 20.80, badge: "", badgeClass: "" },
-          { id: "ff_5600", sku: "ff_5600", group: "Diamonds", name: "5,600 Diamonds", bonus: "+560 Bonus", cost: 44.50, price: 51.90, badge: "", badgeClass: "" },
-          { id: "ff_11500", sku: "ff_11500", group: "Diamonds", name: "11,500 Diamonds", bonus: "+1,150 Bonus", cost: 91.00, price: 105.00, badge: "", badgeClass: "" }
-        ]
+            "id": "ff",
+            "name": "Free Fire",
+            "publisher": "Garena",
+            "category": "Battle Royale",
+            "gradient": "linear-gradient(135deg, #ea580c, #dc2626)",
+            "idLabel": "Player ID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "ff_wklite",
+                        "sku": "ff_wklite",
+                        "group": "Passes & Bundles",
+                        "name": "Weekly Lite Membership",
+                        "bonus": "Instant + Daily Diamonds",
+                        "cost": 0.4,
+                        "price": 0.5,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "ff_wk",
+                        "sku": "ff_wk",
+                        "group": "Passes & Bundles",
+                        "name": "Weekly Membership",
+                        "bonus": "450 Diamonds Total",
+                        "cost": 1.55,
+                        "price": 1.85,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "ff_mo",
+                        "sku": "ff_mo",
+                        "group": "Passes & Bundles",
+                        "name": "Monthly Membership",
+                        "bonus": "2,600 Diamonds Total",
+                        "cost": 7.6,
+                        "price": 8.95,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "ff_evo3",
+                        "sku": "ff_evo3",
+                        "group": "Passes & Bundles",
+                        "name": "Evo Access 3 Days",
+                        "bonus": "Evo Gun Trial + Badges",
+                        "cost": 0.55,
+                        "price": 0.7,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "ff_evo7",
+                        "sku": "ff_evo7",
+                        "group": "Passes & Bundles",
+                        "name": "Evo Access 7 Days",
+                        "bonus": "Evo Gun Trial + Badges",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "ff_25",
+                        "sku": "ff_25",
+                        "group": "Diamonds",
+                        "name": "25 Diamonds",
+                        "bonus": "Instant Direct",
+                        "cost": 0.24,
+                        "price": 0.3,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ff_100",
+                        "sku": "ff_100",
+                        "group": "Diamonds",
+                        "name": "100 Diamonds",
+                        "bonus": "+10 Bonus",
+                        "cost": 0.88,
+                        "price": 1.05,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "ff_310",
+                        "sku": "ff_310",
+                        "group": "Diamonds",
+                        "name": "310 Diamonds",
+                        "bonus": "+31 Bonus",
+                        "cost": 2.65,
+                        "price": 3.15,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ff_520",
+                        "sku": "ff_520",
+                        "group": "Diamonds",
+                        "name": "520 Diamonds",
+                        "bonus": "+52 Bonus",
+                        "cost": 4.4,
+                        "price": 5.2,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "ff_1060",
+                        "sku": "ff_1060",
+                        "group": "Diamonds",
+                        "name": "1,060 Diamonds",
+                        "bonus": "+106 Bonus",
+                        "cost": 8.8,
+                        "price": 10.3,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ff_2180",
+                        "sku": "ff_2180",
+                        "group": "Diamonds",
+                        "name": "2,180 Diamonds",
+                        "bonus": "+218 Bonus",
+                        "cost": 17.8,
+                        "price": 20.8,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ff_5600",
+                        "sku": "ff_5600",
+                        "group": "Diamonds",
+                        "name": "5,600 Diamonds",
+                        "bonus": "+560 Bonus",
+                        "cost": 44.5,
+                        "price": 51.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ff_11500",
+                        "sku": "ff_11500",
+                        "group": "Diamonds",
+                        "name": "11,500 Diamonds",
+                        "bonus": "+1,150 Bonus",
+                        "cost": 91.0,
+                        "price": 105.0,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
       },
       {
-        id: "pubg",
-        name: "PUBG Mobile",
-        publisher: "Tencent Games",
-        category: "Battle Royale",
-        icon: "🪖",
-        gradient: "linear-gradient(135deg, #b45309, #1e293b)",
-        idLabel: "Character ID",
-        zoneLabel: "",
-        hasZone: false,
-        packages: [
-          { id: "pg_60", sku: "pg_60", group: "UC Packages", name: "60 UC", bonus: "Instant Direct", cost: 0.85, price: 0.99, badge: "", badgeClass: "" },
-          { id: "pg_325", sku: "pg_325", group: "UC Packages", name: "325 UC", bonus: "300 + 25 Bonus UC", cost: 4.20, price: 4.90, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "pg_660", sku: "pg_660", group: "UC Packages", name: "660 UC", bonus: "600 + 60 Bonus UC", cost: 8.40, price: 9.75, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "pg_1800", sku: "pg_1800", group: "UC Packages", name: "1,800 UC", bonus: "1500 + 300 Bonus UC", cost: 21.00, price: 24.50, badge: "", badgeClass: "" },
-          { id: "pg_3850", sku: "pg_3850", group: "UC Packages", name: "3,850 UC", bonus: "3000 + 850 Bonus UC", cost: 42.00, price: 48.90, badge: "", badgeClass: "" },
-          { id: "pg_8100", sku: "pg_8100", group: "UC Packages", name: "8,100 UC", bonus: "6000 + 2100 Bonus UC", cost: 84.00, price: 97.50, badge: "", badgeClass: "" }
-        ]
+            "id": "pubg",
+            "name": "PUBG Mobile",
+            "publisher": "Tencent Games",
+            "category": "Battle Royale",
+            "gradient": "linear-gradient(135deg, #b45309, #1e293b)",
+            "idLabel": "Character ID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "pg_60",
+                        "sku": "pg_60",
+                        "group": "UC Packages",
+                        "name": "60 UC",
+                        "bonus": "Instant Direct",
+                        "cost": 0.85,
+                        "price": 0.99,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "pg_325",
+                        "sku": "pg_325",
+                        "group": "UC Packages",
+                        "name": "325 UC",
+                        "bonus": "300 + 25 Bonus UC",
+                        "cost": 4.2,
+                        "price": 4.9,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "pg_660",
+                        "sku": "pg_660",
+                        "group": "UC Packages",
+                        "name": "660 UC",
+                        "bonus": "600 + 60 Bonus UC",
+                        "cost": 8.4,
+                        "price": 9.75,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "pg_1800",
+                        "sku": "pg_1800",
+                        "group": "UC Packages",
+                        "name": "1,800 UC",
+                        "bonus": "1500 + 300 Bonus UC",
+                        "cost": 21.0,
+                        "price": 24.5,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "pg_3850",
+                        "sku": "pg_3850",
+                        "group": "UC Packages",
+                        "name": "3,850 UC",
+                        "bonus": "3000 + 850 Bonus UC",
+                        "cost": 42.0,
+                        "price": 48.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "pg_8100",
+                        "sku": "pg_8100",
+                        "group": "UC Packages",
+                        "name": "8,100 UC",
+                        "bonus": "6000 + 2100 Bonus UC",
+                        "cost": 84.0,
+                        "price": 97.5,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
       },
       {
-        id: "hok",
-        name: "Honor of Kings",
-        publisher: "Level Infinite",
-        category: "MOBA",
-        icon: "👑",
-        gradient: "linear-gradient(135deg, #0284c7, #0f172a)",
-        idLabel: "Player UID",
-        zoneLabel: "",
-        hasZone: false,
-        packages: [
-          { id: "hk_wk", sku: "hk_wk", group: "Passes & Bundles", name: "Weekly Card", bonus: "80 Tokens + Daily", cost: 0.85, price: 1.05, badge: "PASS", badgeClass: "badge-pass" },
-          { id: "hk_wkplus", sku: "hk_wkplus", group: "Passes & Bundles", name: "Weekly Card Plus", bonus: "240 Tokens + Vouchers", cost: 2.50, price: 2.99, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "hk_80", sku: "hk_80", group: "Tokens", name: "80 Tokens", bonus: "+8 Bonus", cost: 0.85, price: 1.05, badge: "", badgeClass: "" },
-          { id: "hk_240", sku: "hk_240", group: "Tokens", name: "240 Tokens", bonus: "+24 Bonus", cost: 2.50, price: 2.99, badge: "", badgeClass: "" },
-          { id: "hk_400", sku: "hk_400", group: "Tokens", name: "400 Tokens", bonus: "+40 Bonus", cost: 4.15, price: 4.95, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "hk_800", sku: "hk_800", group: "Tokens", name: "800 Tokens", bonus: "+80 Bonus", cost: 8.30, price: 9.85, badge: "", badgeClass: "" },
-          { id: "hk_2400", sku: "hk_2400", group: "Tokens", name: "2,400 Tokens", bonus: "+240 Bonus", cost: 24.90, price: 29.20, badge: "", badgeClass: "" }
-        ]
+            "id": "hok",
+            "name": "Honor of Kings",
+            "publisher": "Level Infinite",
+            "category": "MOBA",
+            "gradient": "linear-gradient(135deg, #0284c7, #0f172a)",
+            "idLabel": "Player UID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "hk_wk",
+                        "sku": "hk_wk",
+                        "group": "Passes & Bundles",
+                        "name": "Weekly Card",
+                        "bonus": "80 Tokens + Daily",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "hk_wkplus",
+                        "sku": "hk_wkplus",
+                        "group": "Passes & Bundles",
+                        "name": "Weekly Card Plus",
+                        "bonus": "240 Tokens + Vouchers",
+                        "cost": 2.5,
+                        "price": 2.99,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "hk_16",
+                        "sku": "hk_16",
+                        "group": "Tokens",
+                        "name": "16 Tokens",
+                        "bonus": "Instant Direct",
+                        "cost": 0.18,
+                        "price": 0.25,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "hk_80",
+                        "sku": "hk_80",
+                        "group": "Tokens",
+                        "name": "80 Tokens",
+                        "bonus": "+8 Bonus",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "hk_240",
+                        "sku": "hk_240",
+                        "group": "Tokens",
+                        "name": "240 Tokens",
+                        "bonus": "+24 Bonus",
+                        "cost": 2.5,
+                        "price": 2.99,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "hk_400",
+                        "sku": "hk_400",
+                        "group": "Tokens",
+                        "name": "400 Tokens",
+                        "bonus": "+40 Bonus",
+                        "cost": 4.15,
+                        "price": 4.95,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "hk_800",
+                        "sku": "hk_800",
+                        "group": "Tokens",
+                        "name": "800 Tokens",
+                        "bonus": "+80 Bonus",
+                        "cost": 8.3,
+                        "price": 9.85,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "hk_2400",
+                        "sku": "hk_2400",
+                        "group": "Tokens",
+                        "name": "2,400 Tokens",
+                        "bonus": "+240 Bonus",
+                        "cost": 24.9,
+                        "price": 29.2,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "hk_4000",
+                        "sku": "hk_4000",
+                        "group": "Tokens",
+                        "name": "4,000 Tokens",
+                        "bonus": "+400 Bonus",
+                        "cost": 41.5,
+                        "price": 48.5,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
       },
       {
-        id: "genshin",
-        name: "Genshin Impact",
-        publisher: "HoYoverse",
-        category: "RPG",
-        icon: "✨",
-        gradient: "linear-gradient(135deg, #4f46e5, #06b6d4)",
-        idLabel: "UID",
-        zoneLabel: "Server (Asia / America / EU)",
-        hasZone: true,
-        packages: [
-          { id: "gs_welkin", sku: "gs_welkin", group: "Passes & Bundles", name: "Blessing of the Welkin Moon", bonus: "300 Crystals + 2,700 Primogems", cost: 3.85, price: 4.65, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "gs_60", sku: "gs_60", group: "Genesis Crystals", name: "60 Genesis Crystals", bonus: "Instant Direct", cost: 0.82, price: 0.99, badge: "", badgeClass: "" },
-          { id: "gs_300", sku: "gs_300", group: "Genesis Crystals", name: "300 + 30 Genesis Crystals", bonus: "330 Total", cost: 3.90, price: 4.75, badge: "", badgeClass: "" },
-          { id: "gs_980", sku: "gs_980", group: "Genesis Crystals", name: "980 + 110 Genesis Crystals", bonus: "1,090 Total", cost: 11.80, price: 14.20, badge: "HOT", badgeClass: "badge-hot" },
-          { id: "gs_1980", sku: "gs_1980", group: "Genesis Crystals", name: "1,980 + 260 Genesis Crystals", bonus: "2,240 Total", cost: 24.20, price: 28.90, badge: "", badgeClass: "" },
-          { id: "gs_3280", sku: "gs_3280", group: "Genesis Crystals", name: "3,280 + 600 Genesis Crystals", bonus: "3,880 Total", cost: 39.50, price: 46.90, badge: "", badgeClass: "" },
-          { id: "gs_6480", sku: "gs_6480", group: "Genesis Crystals", name: "6,480 + 1,600 Genesis Crystals", bonus: "8,080 Total", cost: 78.50, price: 92.50, badge: "", badgeClass: "" }
-        ]
+            "id": "genshin",
+            "name": "Genshin Impact",
+            "publisher": "HoYoverse",
+            "category": "RPG",
+            "gradient": "linear-gradient(135deg, #4f46e5, #06b6d4)",
+            "idLabel": "UID",
+            "zoneLabel": "Server (Asia / America / EU)",
+            "hasZone": true,
+            "packages": [
+                  {
+                        "id": "gs_welkin",
+                        "sku": "gs_welkin",
+                        "group": "Passes & Bundles",
+                        "name": "Blessing of the Welkin Moon",
+                        "bonus": "300 Crystals + 2,700 Primogems",
+                        "cost": 3.85,
+                        "price": 4.65,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "gs_60",
+                        "sku": "gs_60",
+                        "group": "Genesis Crystals",
+                        "name": "60 Genesis Crystals",
+                        "bonus": "Instant Direct",
+                        "cost": 0.82,
+                        "price": 0.99,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "gs_300",
+                        "sku": "gs_300",
+                        "group": "Genesis Crystals",
+                        "name": "300 + 30 Genesis Crystals",
+                        "bonus": "330 Total",
+                        "cost": 3.9,
+                        "price": 4.75,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "gs_980",
+                        "sku": "gs_980",
+                        "group": "Genesis Crystals",
+                        "name": "980 + 110 Genesis Crystals",
+                        "bonus": "1,090 Total",
+                        "cost": 11.8,
+                        "price": 14.2,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "gs_1980",
+                        "sku": "gs_1980",
+                        "group": "Genesis Crystals",
+                        "name": "1,980 + 260 Genesis Crystals",
+                        "bonus": "2,240 Total",
+                        "cost": 24.2,
+                        "price": 28.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "gs_3280",
+                        "sku": "gs_3280",
+                        "group": "Genesis Crystals",
+                        "name": "3,280 + 600 Genesis Crystals",
+                        "bonus": "3,880 Total",
+                        "cost": 39.5,
+                        "price": 46.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "gs_6480",
+                        "sku": "gs_6480",
+                        "group": "Genesis Crystals",
+                        "name": "6,480 + 1,600 Genesis Crystals",
+                        "bonus": "8,080 Total",
+                        "cost": 78.5,
+                        "price": 92.5,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "mcgg",
+            "name": "Magic Chess: Go Go",
+            "publisher": "Moonton",
+            "category": "MOBA",
+            "gradient": "linear-gradient(135deg, #581c87, #3b82f6)",
+            "idLabel": "User ID",
+            "zoneLabel": "Zone ID",
+            "hasZone": true,
+            "packages": [
+                  {
+                        "id": "mc_wk",
+                        "sku": "mc_wk",
+                        "group": "Passes & Bundles",
+                        "name": "Weekly Card Pass",
+                        "bonus": "Instant + Daily Diamonds",
+                        "cost": 1.45,
+                        "price": 1.79,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "mc_86",
+                        "sku": "mc_86",
+                        "group": "Diamonds",
+                        "name": "86 Diamonds",
+                        "bonus": "78 + 8 Bonus",
+                        "cost": 1.2,
+                        "price": 1.45,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "mc_172",
+                        "sku": "mc_172",
+                        "group": "Diamonds",
+                        "name": "172 Diamonds",
+                        "bonus": "156 + 16 Bonus",
+                        "cost": 2.39,
+                        "price": 2.85,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "mc_257",
+                        "sku": "mc_257",
+                        "group": "Diamonds",
+                        "name": "257 Diamonds",
+                        "bonus": "234 + 23 Bonus",
+                        "cost": 3.55,
+                        "price": 4.2,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "mc_706",
+                        "sku": "mc_706",
+                        "group": "Diamonds",
+                        "name": "706 Diamonds",
+                        "bonus": "625 + 81 Bonus",
+                        "cost": 9.5,
+                        "price": 11.2,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "roblox",
+            "name": "Roblox (Robux)",
+            "publisher": "Roblox Corp",
+            "category": "RPG",
+            "gradient": "linear-gradient(135deg, #1e293b, #475569)",
+            "idLabel": "Roblox Username",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "rbx_80",
+                        "sku": "rbx_80",
+                        "group": "Robux",
+                        "name": "80 Robux",
+                        "bonus": "Instant Code / Direct",
+                        "cost": 0.9,
+                        "price": 1.15,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "rbx_400",
+                        "sku": "rbx_400",
+                        "group": "Robux",
+                        "name": "400 Robux",
+                        "bonus": "Instant Code / Direct",
+                        "cost": 4.3,
+                        "price": 5.1,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "rbx_500",
+                        "sku": "rbx_500",
+                        "group": "Robux",
+                        "name": "500 Robux",
+                        "bonus": "Instant Code / Direct",
+                        "cost": 5.2,
+                        "price": 6.15,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "rbx_800",
+                        "sku": "rbx_800",
+                        "group": "Robux",
+                        "name": "800 Robux",
+                        "bonus": "Instant Code / Direct",
+                        "cost": 8.5,
+                        "price": 9.95,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "rbx_1700",
+                        "sku": "rbx_1700",
+                        "group": "Robux",
+                        "name": "1,700 Robux",
+                        "bonus": "Instant Code / Direct",
+                        "cost": 17.2,
+                        "price": 19.95,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "rbx_4500",
+                        "sku": "rbx_4500",
+                        "group": "Robux",
+                        "name": "4,500 Robux",
+                        "bonus": "Instant Code / Direct",
+                        "cost": 43.0,
+                        "price": 49.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "valorant",
+            "name": "Valorant",
+            "publisher": "Riot Games",
+            "category": "Shooter",
+            "gradient": "linear-gradient(135deg, #be123c, #18181b)",
+            "idLabel": "Riot ID (Name#TAG)",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "val_475",
+                        "sku": "val_475",
+                        "group": "Valorant Points",
+                        "name": "475 VP",
+                        "bonus": "SEA / Cambodia Server",
+                        "cost": 4.1,
+                        "price": 4.85,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "val_1000",
+                        "sku": "val_1000",
+                        "group": "Valorant Points",
+                        "name": "1,000 VP",
+                        "bonus": "SEA / Cambodia Server",
+                        "cost": 8.2,
+                        "price": 9.65,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "val_2050",
+                        "sku": "val_2050",
+                        "group": "Valorant Points",
+                        "name": "2,050 VP",
+                        "bonus": "SEA / Cambodia Server",
+                        "cost": 16.4,
+                        "price": 19.2,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "val_3650",
+                        "sku": "val_3650",
+                        "group": "Valorant Points",
+                        "name": "3,650 VP",
+                        "bonus": "SEA / Cambodia Server",
+                        "cost": 28.9,
+                        "price": 33.8,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "val_5350",
+                        "sku": "val_5350",
+                        "group": "Valorant Points",
+                        "name": "5,350 VP",
+                        "bonus": "SEA / Cambodia Server",
+                        "cost": 41.5,
+                        "price": 48.5,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "bloodstrike",
+            "name": "Blood Strike",
+            "publisher": "NetEase Games",
+            "category": "Battle Royale",
+            "gradient": "linear-gradient(135deg, #991b1b, #18181b)",
+            "idLabel": "Player ID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "bs_pass",
+                        "sku": "bs_pass",
+                        "group": "Passes & Bundles",
+                        "name": "Strike Pass Elite",
+                        "bonus": "Season Pass Unlock",
+                        "cost": 3.5,
+                        "price": 4.2,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "bs_100",
+                        "sku": "bs_100",
+                        "group": "Gold",
+                        "name": "100 + 5 Gold",
+                        "bonus": "105 Total Gold",
+                        "cost": 0.8,
+                        "price": 0.99,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "bs_300",
+                        "sku": "bs_300",
+                        "group": "Gold",
+                        "name": "300 + 20 Gold",
+                        "bonus": "320 Total Gold",
+                        "cost": 2.35,
+                        "price": 2.85,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "bs_500",
+                        "sku": "bs_500",
+                        "group": "Gold",
+                        "name": "500 + 40 Gold",
+                        "bonus": "540 Total Gold",
+                        "cost": 3.9,
+                        "price": 4.65,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "bs_1000",
+                        "sku": "bs_1000",
+                        "group": "Gold",
+                        "name": "1,000 + 100 Gold",
+                        "bonus": "1,100 Total Gold",
+                        "cost": 7.8,
+                        "price": 9.2,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "bs_2000",
+                        "sku": "bs_2000",
+                        "group": "Gold",
+                        "name": "2,000 + 260 Gold",
+                        "bonus": "2,260 Total Gold",
+                        "cost": 15.6,
+                        "price": 18.4,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "codm",
+            "name": "Call of Duty: Mobile",
+            "publisher": "Garena / Activision",
+            "category": "Shooter",
+            "gradient": "linear-gradient(135deg, #334155, #090d16)",
+            "idLabel": "OpenID / Player ID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "cod_64",
+                        "sku": "cod_64",
+                        "group": "CP Packages",
+                        "name": "64 CP",
+                        "bonus": "Instant Direct",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "cod_320",
+                        "sku": "cod_320",
+                        "group": "CP Packages",
+                        "name": "320 CP",
+                        "bonus": "Instant Direct",
+                        "cost": 4.1,
+                        "price": 4.85,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "cod_645",
+                        "sku": "cod_645",
+                        "group": "CP Packages",
+                        "name": "645 CP",
+                        "bonus": "Instant Direct",
+                        "cost": 8.15,
+                        "price": 9.55,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "cod_1600",
+                        "sku": "cod_1600",
+                        "group": "CP Packages",
+                        "name": "1,600 CP",
+                        "bonus": "Instant Direct",
+                        "cost": 20.2,
+                        "price": 23.8,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "cod_3300",
+                        "sku": "cod_3300",
+                        "group": "CP Packages",
+                        "name": "3,300 CP",
+                        "bonus": "Instant Direct",
+                        "cost": 40.5,
+                        "price": 47.5,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "arenabreakout",
+            "name": "Arena Breakout",
+            "publisher": "Level Infinite",
+            "category": "Shooter",
+            "gradient": "linear-gradient(135deg, #7c2d12, #1c1917)",
+            "idLabel": "Player ID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "ab_pass",
+                        "sku": "ab_pass",
+                        "group": "Passes & Bundles",
+                        "name": "Composite Case (30 Days)",
+                        "bonus": "3x2 Secure Container",
+                        "cost": 4.2,
+                        "price": 4.99,
+                        "badge": "PASS",
+                        "badgeClass": "badge-pass"
+                  },
+                  {
+                        "id": "ab_60",
+                        "sku": "ab_60",
+                        "group": "Bonds",
+                        "name": "60 Bonds",
+                        "bonus": "+6 Bonus",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ab_310",
+                        "sku": "ab_310",
+                        "group": "Bonds",
+                        "name": "310 Bonds",
+                        "bonus": "+35 Bonus",
+                        "cost": 4.15,
+                        "price": 4.9,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "ab_630",
+                        "sku": "ab_630",
+                        "group": "Bonds",
+                        "name": "630 Bonds",
+                        "bonus": "+75 Bonus",
+                        "cost": 8.3,
+                        "price": 9.75,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "ab_1580",
+                        "sku": "ab_1580",
+                        "group": "Bonds",
+                        "name": "1,580 Bonds",
+                        "bonus": "+210 Bonus",
+                        "cost": 20.5,
+                        "price": 24.0,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "mla",
+            "name": "Mobile Legends: Adventure",
+            "publisher": "Moonton",
+            "category": "RPG",
+            "gradient": "linear-gradient(135deg, #1e3a8a, #0ea5e9)",
+            "idLabel": "User ID",
+            "zoneLabel": "Server ID",
+            "hasZone": true,
+            "packages": [
+                  {
+                        "id": "mla_50",
+                        "sku": "mla_50",
+                        "group": "M-Cash",
+                        "name": "50 M-Cash",
+                        "bonus": "Instant Direct",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "mla_250",
+                        "sku": "mla_250",
+                        "group": "M-Cash",
+                        "name": "250 M-Cash",
+                        "bonus": "Instant Direct",
+                        "cost": 4.15,
+                        "price": 4.9,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "mla_500",
+                        "sku": "mla_500",
+                        "group": "M-Cash",
+                        "name": "500 M-Cash",
+                        "bonus": "Instant Direct",
+                        "cost": 8.3,
+                        "price": 9.75,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "mla_1000",
+                        "sku": "mla_1000",
+                        "group": "M-Cash",
+                        "name": "1,000 M-Cash",
+                        "bonus": "Instant Direct",
+                        "cost": 16.5,
+                        "price": 19.3,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "identityv",
+            "name": "Identity V",
+            "publisher": "NetEase Games",
+            "category": "RPG",
+            "gradient": "linear-gradient(135deg, #312e81, #1e1b4b)",
+            "idLabel": "User ID",
+            "zoneLabel": "Server (Asia / NA-EU)",
+            "hasZone": true,
+            "packages": [
+                  {
+                        "id": "idv_60",
+                        "sku": "idv_60",
+                        "group": "Echoes",
+                        "name": "60 Echoes",
+                        "bonus": "+3 Bonus",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "idv_305",
+                        "sku": "idv_305",
+                        "group": "Echoes",
+                        "name": "305 Echoes",
+                        "bonus": "+15 Bonus",
+                        "cost": 4.15,
+                        "price": 4.9,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "idv_690",
+                        "sku": "idv_690",
+                        "group": "Echoes",
+                        "name": "690 Echoes",
+                        "bonus": "+35 Bonus",
+                        "cost": 8.35,
+                        "price": 9.8,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "idv_2025",
+                        "sku": "idv_2025",
+                        "group": "Echoes",
+                        "name": "2,025 Echoes",
+                        "bonus": "+125 Bonus",
+                        "cost": 24.8,
+                        "price": 28.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "zepeto",
+            "name": "ZEPETO",
+            "publisher": "Naver Z",
+            "category": "Live & Social",
+            "gradient": "linear-gradient(135deg, #701a75, #4c1d95)",
+            "idLabel": "ZEPETO Code / ID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "zep_14",
+                        "sku": "zep_14",
+                        "group": "ZEMs",
+                        "name": "14 ZEMs",
+                        "bonus": "Instant Direct",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "zep_70",
+                        "sku": "zep_70",
+                        "group": "ZEMs",
+                        "name": "70 ZEMs",
+                        "bonus": "+4 Bonus",
+                        "cost": 4.15,
+                        "price": 4.9,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "zep_140",
+                        "sku": "zep_140",
+                        "group": "ZEMs",
+                        "name": "140 ZEMs",
+                        "bonus": "+10 Bonus",
+                        "cost": 8.3,
+                        "price": 9.75,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "bigo",
+            "name": "Bigo Live",
+            "publisher": "BIGO Technology",
+            "category": "Live & Social",
+            "gradient": "linear-gradient(135deg, #0284c7, #0369a1)",
+            "idLabel": "Bigo ID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "bg_40",
+                        "sku": "bg_40",
+                        "group": "Diamonds",
+                        "name": "40 Diamonds",
+                        "bonus": "Instant Direct",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "bg_200",
+                        "sku": "bg_200",
+                        "group": "Diamonds",
+                        "name": "200 Diamonds",
+                        "bonus": "Instant Direct",
+                        "cost": 4.15,
+                        "price": 4.9,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "bg_500",
+                        "sku": "bg_500",
+                        "group": "Diamonds",
+                        "name": "500 Diamonds",
+                        "bonus": "Instant Direct",
+                        "cost": 10.3,
+                        "price": 12.1,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "bg_1000",
+                        "sku": "bg_1000",
+                        "group": "Diamonds",
+                        "name": "1,000 Diamonds",
+                        "bonus": "Instant Direct",
+                        "cost": 20.5,
+                        "price": 23.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "poppo",
+            "name": "Poppo Live",
+            "publisher": "Vshow",
+            "category": "Live & Social",
+            "gradient": "linear-gradient(135deg, #be185d, #831843)",
+            "idLabel": "Poppo User ID",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "pp_8300",
+                        "sku": "pp_8300",
+                        "group": "Coins",
+                        "name": "8,300 Coins",
+                        "bonus": "Instant Direct",
+                        "cost": 0.85,
+                        "price": 1.05,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "pp_43000",
+                        "sku": "pp_43000",
+                        "group": "Coins",
+                        "name": "43,000 Coins",
+                        "bonus": "Instant Direct",
+                        "cost": 4.15,
+                        "price": 4.9,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "pp_87000",
+                        "sku": "pp_87000",
+                        "group": "Coins",
+                        "name": "87,000 Coins",
+                        "bonus": "Instant Direct",
+                        "cost": 8.3,
+                        "price": 9.75,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "steam",
+            "name": "Steam Wallet Code (USD)",
+            "publisher": "Valve Corp",
+            "category": "Gift Cards",
+            "gradient": "linear-gradient(135deg, #0f172a, #0284c7)",
+            "idLabel": "Email / Telegram for Code",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "stm_5",
+                        "sku": "stm_5",
+                        "group": "Gift Vouchers",
+                        "name": "Steam Wallet $5 USD",
+                        "bonus": "Global / SEA Code",
+                        "cost": 4.65,
+                        "price": 5.3,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "stm_10",
+                        "sku": "stm_10",
+                        "group": "Gift Vouchers",
+                        "name": "Steam Wallet $10 USD",
+                        "bonus": "Global / SEA Code",
+                        "cost": 9.25,
+                        "price": 10.5,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "stm_20",
+                        "sku": "stm_20",
+                        "group": "Gift Vouchers",
+                        "name": "Steam Wallet $20 USD",
+                        "bonus": "Global / SEA Code",
+                        "cost": 18.5,
+                        "price": 20.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "stm_50",
+                        "sku": "stm_50",
+                        "group": "Gift Vouchers",
+                        "name": "Steam Wallet $50 USD",
+                        "bonus": "Global / SEA Code",
+                        "cost": 46.2,
+                        "price": 51.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
+      },
+      {
+            "id": "psn",
+            "name": "PlayStation Network (PSN)",
+            "publisher": "Sony Interactive",
+            "category": "Gift Cards",
+            "gradient": "linear-gradient(135deg, #1d4ed8, #1e3a8a)",
+            "idLabel": "Email / Telegram for Code",
+            "zoneLabel": "",
+            "hasZone": false,
+            "packages": [
+                  {
+                        "id": "psn_10",
+                        "sku": "psn_10",
+                        "group": "Gift Vouchers",
+                        "name": "PSN Card $10 (US/SG)",
+                        "bonus": "Digital Redeem Code",
+                        "cost": 9.2,
+                        "price": 10.5,
+                        "badge": "HOT",
+                        "badgeClass": "badge-hot"
+                  },
+                  {
+                        "id": "psn_25",
+                        "sku": "psn_25",
+                        "group": "Gift Vouchers",
+                        "name": "PSN Card $25 (US/SG)",
+                        "bonus": "Digital Redeem Code",
+                        "cost": 23.0,
+                        "price": 26.2,
+                        "badge": "",
+                        "badgeClass": ""
+                  },
+                  {
+                        "id": "psn_50",
+                        "sku": "psn_50",
+                        "group": "Gift Vouchers",
+                        "name": "PSN Card $50 (US/SG)",
+                        "bonus": "Digital Redeem Code",
+                        "cost": 46.0,
+                        "price": 51.9,
+                        "badge": "",
+                        "badgeClass": ""
+                  }
+            ]
       }
-    ];
+];
 
-    let storedGames = JSON.parse(safeGetStorage("khtopup_games_v2", null) || "null");
+    let storedGames = JSON.parse(safeGetStorage("khtopup_games_v3", null) || "null");
     let GAMES = storedGames && storedGames.length ? storedGames : DEFAULT_GAMES;
     let orders = JSON.parse(safeGetStorage("khtopup_orders", null) || "[]");
     let config = JSON.parse(safeGetStorage("khtopup_config", null) || '{"backendUrl":"","adminPin":"2026","merchantId":"","paywayKey":"","supplier":"shop2topup","supplierUid":"","supplierKey":"","tgToken":"","tgChat":""}');
@@ -1484,7 +2913,7 @@
           const serverCatalog = await apiFetch("/api/catalog");
           if (Array.isArray(serverCatalog) && serverCatalog.length) {
             GAMES = serverCatalog;
-            safeSetStorage("khtopup_games_v2", JSON.stringify(GAMES));
+            safeSetStorage("khtopup_games_v3", JSON.stringify(GAMES));
             renderGames();
           }
           if (adminUnlocked) {
@@ -2021,7 +3450,7 @@
         badgeClass: "badge-hot"
       });
 
-      safeSetStorage("khtopup_games_v2", JSON.stringify(GAMES));
+      safeSetStorage("khtopup_games_v3", JSON.stringify(GAMES));
       document.getElementById("newPkgName").value = "";
       document.getElementById("newPkgBonus").value = "";
       renderGames();
@@ -2052,13 +3481,51 @@
       const num = parseFloat(val);
       if (!isNaN(num) && num > 0) {
         p.price = num;
-        safeSetStorage("khtopup_games_v2", JSON.stringify(GAMES));
+        safeSetStorage("khtopup_games_v3", JSON.stringify(GAMES));
         renderAdmin();
       }
     }
 
+    async function syncAllFromShop2Topup() {
+      const msg = document.getElementById("syncShop2TopupMsg");
+      const btn = document.getElementById("syncShop2TopupBtn");
+      const markup = parseFloat(document.getElementById("syncMarkupPct").value) || 18;
+      msg.classList.remove("hidden", "verify-ok", "verify-err");
+
+      if (!isBackendOnline) {
+        msg.classList.add("verify-err");
+        msg.textContent = "⚠ Please deploy/start server.js and save your Shop2Topup Partner UID & Secret Key in Backend & API Keys first.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "⏳ Fetching live catalog from Shop2Topup API...";
+      try {
+        const res = await apiFetch("/api/sync-shop2topup", {
+          method: "POST",
+          body: JSON.stringify({ markupPct: markup })
+        });
+        if (res.ok && Array.isArray(res.games)) {
+          GAMES = res.games;
+          safeSetStorage("khtopup_games_v3", JSON.stringify(GAMES));
+          renderGames();
+          renderAdmin();
+          msg.classList.add("verify-ok");
+          msg.textContent = `✓ Synced ${res.games.length} services & ${res.totalPackages} packages (with icons) from Shop2Topup!`;
+        } else {
+          msg.classList.add("verify-err");
+          msg.textContent = "⚠ " + (res.error || "Could not fetch Shop2Topup catalog. Check your UID & API Key.");
+        }
+      } catch (e) {
+        msg.classList.add("verify-err");
+        msg.textContent = "⚠ Sync failed: " + e.message;
+      }
+      btn.disabled = false;
+      btn.textContent = "⚡ Sync All Shop2Topup Services & Icons Now";
+    }
+
     async function savePricingToBackend() {
-      safeSetStorage("khtopup_games_v2", JSON.stringify(GAMES));
+      safeSetStorage("khtopup_games_v3", JSON.stringify(GAMES));
       const msg = document.getElementById("priceSaveMsg");
       if (isBackendOnline) {
         try {
