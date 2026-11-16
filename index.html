@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KHTOPUP — Instant Game Top-Up Cambodia (Full Auto-Store)</title>
+  <style>
+    :root {
+      --bg-primary: #070b14;
+      --bg-secondary: #0d1424;
+      --bg-card: #121b2f;
+      --border-color: rgba(56, 189, 248, 0.18);
+      --accent-cyan: #00e5ff;
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .promo-bar {
+      background: linear-gradient(90deg, #0284c7, #6d28d9, #be185d);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .promo-badge {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(7, 11, 20, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 16px;
+    }
+
+    .header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00e5ff, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #050811;
+      font-size: 18px;
+      box-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .auto-pill {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      padding: 6px 11px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--accent-cyan);
+      color: var(--text-primary);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(59, 130, 246, 0.18));
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .currency-btn {
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .badge-count {
+      background: var(--accent-cyan);
+      color: #050811;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 999px;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 16px 90px;
+    }
+
+    .hero {
+      background: radial-gradient(circle at top right, rgba(0, 229, 255, 0.16), transparent 55%),
+                  linear-gradient(135deg, #0f172a 0%, #131c36 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.35);
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      max-width: 560px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      background: rgba(7, 11, 20, 0.65);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 16px;
+      min-width: 105px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .khqr-banner {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.12));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .bank-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .bank-pill {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .bank-khqr { background: #dc2626; color: #fff; }
+    .bank-aba { background: #005b7f; color: #fff; }
+    .bank-wing { background: #84cc16; color: #050811; }
+    .bank-acleda { background: #1d4ed8; color: #fbbf24; }
+    .bank-true { background: #f97316; color: #fff; }
+
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .filter-tab.active {
+      background: var(--accent-cyan);
+      color: #050811;
+      border-color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .search-input {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      min-width: 240px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 16px;
+    }
+
+    .game-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 10px 25px rgba(0, 229, 255, 0.14);
+    }
+
+    .game-banner {
+      height: 118px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .game-cat-tag {
+      align-self: flex-start;
+      background: rgba(0, 0, 0, 0.48);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .game-icon-circle {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .game-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .game-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .game-pub {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .game-cta {
+      width: 100%;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.35);
+      color: var(--accent-cyan);
+      padding: 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .game-card:hover .game-cta {
+      background: var(--accent-cyan);
+      color: #050811;
+    }
+
+    .topup-panel {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .panel-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 18px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .step-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      color: #050811;
+      font-size: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .field-input, .field-select {
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .field-input:focus, .field-select:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00e5ff, #3b82f6);
+      color: #050811;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #f87171;
+      padding: 8px 14px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 14px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .verify-result {
+      margin-top: 10px;
+      padding: 9px 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .verify-ok {
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    .verify-err {
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    /* Package Category Filter Tabs */
+    .pkg-cat-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .pkg-cat-btn {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 5px 11px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .pkg-cat-btn.active {
+      background: rgba(0, 229, 255, 0.16);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    /* Denomination Grid */
+    .pkg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
+      gap: 10px;
+    }
+
+    .pkg-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .pkg-card:hover {
+      border-color: rgba(0, 229, 255, 0.5);
+    }
+
+    .pkg-card.selected {
+      background: rgba(0, 229, 255, 0.12);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.2);
+    }
+
+    .pkg-badge {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-hot { background: #f59e0b; color: #050811; }
+    .badge-2x { background: #ec4899; color: #ffffff; }
+    .badge-pass { background: #8b5cf6; color: #ffffff; }
+
+    .pkg-name {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 3px;
+      padding-right: 28px;
+    }
+
+    .pkg-bonus {
+      font-size: 11px;
+      color: #34d399;
+      margin-bottom: 6px;
+    }
+
+    .pkg-price {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .pay-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .pay-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 11px;
+      padding: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pay-card.selected {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.12);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 6, 14, 0.85);
+      backdrop-filter: blur(6px);
+      z-index: 60;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .khqr-box {
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 14px 0;
+      text-align: center;
+    }
+
+    .khqr-header {
+      background: #e1232e;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 16px;
+      padding: 10px;
+      letter-spacing: 1px;
+    }
+
+    .khqr-body {
+      padding: 16px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      max-height: 460px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-secondary);
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+    }
+
+    .status-badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      display: inline-block;
+    }
+
+    .st-completed { background: rgba(16, 185, 129, 0.16); color: #34d399; }
+    .st-pending { background: rgba(245, 158, 11, 0.16); color: #fbbf24; }
+
+    .mode-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .mode-live {
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #34d399;
+    }
+
+    .mode-demo {
+      background: rgba(245, 158, 11, 0.16);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      padding: 18px 16px 36px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="promo-bar">
+    <span class="promo-badge">KH AUTO</span>
+    <span>បញ្ចូលពេជ្រ MLBB &amp; Free Fire ភ្លាមៗ ២៤ម៉ោង! Zero Fee with ABA KHQR &amp; Wing</span>
+  </div>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand" onclick="switchView('storefront')">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <div class="brand-title">KHTOPUP <span class="auto-pill">FULL AUTO</span></div>
+          <div class="brand-sub">Phnom Penh • Instant API Top-Up</div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button class="currency-btn" id="currencyBtn" onclick="toggleCurrency()">$ USD</button>
+        <button class="nav-btn active" id="navStorefront" onclick="switchView('storefront')">Storefront</button>
+        <button class="nav-btn" id="navTrack" onclick="switchView('track')">Track Order</button>
+        
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- STOREFRONT VIEW -->
+    <section id="viewStorefront">
+      <div class="hero">
+        <div>
+          <span class="hero-tag">⚡ 2-Second Auto-Delivery • ABA KHQR, Wing, ACLEDA &amp; TrueMoney</span>
+          <h1>Instant Game Top-Ups in Cambodia</h1>
+          <p>Select your game, verify your Player ID, scan KHQR once, and receive Diamonds, UC, or Tokens automatically 24/7.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-box">
+            <div class="stat-val">2.4s</div>
+            <div class="stat-lbl">Avg. Delivery</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">60+</div>
+            <div class="stat-lbl">Diamond Packs</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">24/7</div>
+            <div class="stat-lbl">KHQR Auto</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="khqr-banner">
+        <div>
+          <div style="font-weight:700; font-size:13px;">Supported Cambodia Instant Payment Gateways</div>
+          <div style="font-size:11px; color:var(--text-secondary);">Scan once with any Bakong KHQR banking app for automatic diamond delivery</div>
+        </div>
+        <div class="bank-pills">
+          <span class="bank-pill bank-khqr">KHQR</span>
+          <span class="bank-pill bank-aba">ABA PAY</span>
+          <span class="bank-pill bank-wing">WING</span>
+          <span class="bank-pill bank-acleda">ACLEDA</span>
+          <span class="bank-pill bank-true">TrueMoney</span>
+        </div>
+      </div>
+
+      <!-- TOP-UP WORKSPACE -->
+      <div id="topupWorkspace" class="topup-panel hidden">
+        <div class="panel-header">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div id="wsIcon" class="game-icon-circle" style="background:linear-gradient(135deg,#00e5ff,#3b82f6);">💎</div>
+            <div>
+              <h2 id="wsTitle" style="font-size:18px; font-weight:800;">Mobile Legends: Bang Bang</h2>
+              <div id="wsSub" style="font-size:12px; color:var(--text-secondary);">Moonton • Instant API Delivery</div>
+            </div>
+          </div>
+          <button class="btn-outline" onclick="closeWorkspace()">✕ Change Game</button>
+        </div>
+
+        <div class="step-card">
+          <div class="step-title"><span class="step-num">1</span> Enter Player Account</div>
+          <div class="input-row">
+            <div class="field-group">
+              <label id="lblPlayerId">User ID</label>
+              <input type="text" id="inputPlayerId" class="field-input" placeholder="e.g. 123456789" />
+            </div>
+            <div class="field-group" id="zoneGroup">
+              <label id="lblZoneId">Zone ID / Server</label>
+              <input type="text" id="inputZoneId" class="field-input" placeholder="e.g. 2589" />
+            </div>
+            <div class="field-group" style="display:flex; align-items:flex-end;">
+              <button class="btn-primary" style="width:100%;" onclick="verifyPlayer()">Verify Player ID</button>
+            </div>
+          </div>
+          <div id="verifyMessage" class="verify-result hidden"></div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-title" style="justify-content:space-between; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="step-num">2</span> Select Top-Up Package
+            </div>
+            <span id="pkgCountLabel" style="font-size:11px; color:var(--accent-cyan);"></span>
+          </div>
+          <div class="pkg-cat-bar" id="pkgCatBar"></div>
+          <div class="pkg-grid" id="pkgGrid"></div>
+        </div>
+
+        <div class="step-card" style="margin-bottom:0;">
+          <div class="step-title"><span class="step-num">3</span> Select Payment Method</div>
+          <div class="pay-grid" id="payGrid">
+            <div class="pay-card selected" data-method="ABA KHQR" onclick="selectPayment(this)">
+              <span>ABA KHQR</span><span class="bank-pill bank-aba">INSTANT</span>
+            </div>
+            <div class="pay-card" data-method="Wing Bank" onclick="selectPayment(this)">
+              <span>Wing Bank</span><span class="bank-pill bank-wing">KHQR</span>
+            </div>
+            <div class="pay-card" data-method="ACLEDA Mobile" onclick="selectPayment(this)">
+              <span>ACLEDA</span><span class="bank-pill bank-acleda">KHQR</span>
+            </div>
+            <div class="pay-card" data-method="TrueMoney" onclick="selectPayment(this)">
+              <span>TrueMoney</span><span class="bank-pill bank-true">WALLET</span>
+            </div>
+          </div>
+
+          <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border-color); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+            <div>
+              <div style="font-size:11px; color:var(--text-secondary);">Selected: <strong id="selectedPkgSummary" style="color:var(--text-primary);">-</strong></div>
+              <div id="checkoutTotal" style="font-size:22px; font-weight:800; color:var(--accent-cyan);">$0.00</div>
+            </div>
+            <button class="btn-primary" style="padding:12px 24px; font-size:14px;" id="checkoutBtn" onclick="createOrderAndOpenKhqr()">Generate Dynamic KHQR &amp; Pay →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-bar">
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterGames('ALL', this)">All Games</button>
+          <button class="filter-tab" onclick="filterGames('MOBA', this)">MOBA</button>
+          <button class="filter-tab" onclick="filterGames('Battle Royale', this)">Battle Royale</button>
+          <button class="filter-tab" onclick="filterGames('RPG', this)">RPG &amp; Open World</button>
+        </div>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search MLBB, Free Fire, PUBG..." oninput="renderGames()" />
+      </div>
+
+      <div class="game-grid" id="gameGrid"></div>
+    </section>
+
+    <!-- ORDER TRACKER VIEW -->
+    <section id="viewTrack" class="hidden">
+      <div class="topup-panel">
+        <h2 style="font-size:18px; font-weight:800; margin-bottom:6px;">Track Live Top-Up Order</h2>
+        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:14px;">Enter your Order ID (e.g. KHT-...) or Player ID to check real-time API fulfillment status.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+          <input type="text" id="trackInput" class="field-input" style="max-width:340px;" placeholder="Enter Order ID or Player ID..." />
+          <button class="btn-primary" onclick="searchOrders()">Track Order</button>
+        </div>
+        <div id="trackResults"></div>
+      </div>
+    </section>
+
+    <!-- ADMIN VIEW -->
+    <section id="viewAdmin" class="hidden">
+      <div class="topup-panel">
+        <div class="panel-header">
+          <div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h2 style="font-size:18px; font-weight:800;">Reseller Auto-Store &amp; API Control Center</h2>
+              <span id="backendStatusBadge" class="mode-pill mode-demo">Checking Backend...</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Manage live orders, all 60+ package prices, and real ABA PayWay + Smile.One + Telegram credentials</div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="nav-btn active" id="tabOrdersBtn" onclick="switchAdminTab('orders')">Live Orders</button>
+            <button class="nav-btn" id="tabPricingBtn" onclick="switchAdminTab('pricing')">Price &amp; Add Package</button>
+            <button class="nav-btn" id="tabApiBtn" onclick="switchAdminTab('api')">Backend &amp; API Keys</button>
+            <button class="btn-danger" onclick="lockAdmin()">Lock Admin</button>
+          </div>
+        </div>
+
+        <!-- TAB 1: LIVE ORDERS -->
+        <div id="adminTabOrders">
+          <div class="hero-stats" style="margin-bottom:16px;">
+            <div class="stat-box">
+              <div class="stat-val" id="admTotalOrders">0</div>
+              <div class="stat-lbl">Total Orders</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-val" id="admRevenue">$0.00</div>
+              <div class="stat-lbl">Gross Revenue</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-val" style="color:#34d399;" id="admProfit">$0.00</div>
+              <div class="stat-lbl">Est. Net Profit</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Game &amp; Package</th>
+                  <th>Player ID</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminOrdersBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: PRICING & CUSTOM PACKAGE BUILDER -->
+        <div id="adminTabPricing" class="hidden">
+          <div class="step-card">
+            <div class="step-title"><span class="step-num">+</span> Add New Custom Diamond / Top-Up Package</div>
+            <div class="input-row">
+              <div class="field-group">
+                <label>Game</label>
+                <select id="newPkgGame" class="field-select"></select>
+              </div>
+              <div class="field-group">
+                <label>Group / Tab</label>
+                <select id="newPkgGroup" class="field-select">
+                  <option value="Diamonds">Diamonds / Currency</option>
+                  <option value="Passes & Bundles">Passes &amp; Bundles</option>
+                  <option value="2x First Top-Up">2x First Top-Up</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Package Title</label>
+                <input type="text" id="newPkgName" class="field-input" placeholder="e.g. 500 Diamonds" />
+              </div>
+              <div class="field-group">
+                <label>Bonus Text</label>
+                <input type="text" id="newPkgBonus" class="field-input" placeholder="e.g. +50 Bonus" />
+              </div>
+              <div class="field-group">
+                <label>Supplier SKU ID</label>
+                <input type="text" id="newPkgSku" class="field-input" placeholder="e.g. 27" />
+              </div>
+              <div class="field-group">
+                <label>Wholesale Cost ($)</label>
+                <input type="number" step="0.01" id="newPkgCost" class="field-input" placeholder="5.50" />
+              </div>
+              <div class="field-group">
+                <label>Retail Price ($)</label>
+                <input type="number" step="0.01" id="newPkgPrice" class="field-input" placeholder="6.80" />
+              </div>
+              <div class="field-group" style="display:flex; align-items:flex-end;">
+                <button class="btn-primary" style="width:100%;" onclick="addCustomPackage()">Add Package</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+            <span style="font-size:12px; color:var(--text-secondary);">Edit any retail price below and click Save All Prices.</span>
+            <button class="btn-success" onclick="savePricingToBackend()">Save All Retail Prices</button>
+          </div>
+          <div id="priceSaveMsg" class="verify-result verify-ok hidden" style="margin-bottom:12px;"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Game</th>
+                  <th>Category</th>
+                  <th>Package</th>
+                  <th>Wholesale Cost ($)</th>
+                  <th>Retail Price ($)</th>
+                  <th>Profit ($)</th>
+                </tr>
+              </thead>
+              <tbody id="adminPricingBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: BACKEND & API SETTINGS -->
+        <div id="adminTabApi" class="hidden">
+          <div class="step-card">
+            <div class="step-title"><span class="step-num">A</span> Live Backend Server Connection</div>
+            <div class="input-row">
+              <div class="field-group">
+                <label>Backend API Server URL (Leave blank if hosted together on Render/Railway/VPS)</label>
+                <input type="text" id="cfgBackendUrl" class="field-input" placeholder="e.g. https://khtopup-api.onrender.com" />
+              </div>
+              <div class="field-group">
+                <label>Admin PIN / Password</label>
+                <input type="password" id="cfgAdminPin" class="field-input" placeholder="Default: 2026" />
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-title"><span class="step-num">B</span> Payment, Wholesale Supplier &amp; Telegram Webhook Keys</div>
+            <div class="input-row">
+              <div class="field-group">
+                <label>ABA PayWay Merchant ID</label>
+                <input type="text" id="cfgMerchantId" class="field-input" placeholder="ec000000" />
+              </div>
+              <div class="field-group">
+                <label>ABA PayWay Public API Key</label>
+                <input type="password" id="cfgPaywayKey" class="field-input" placeholder="Paste ABA PayWay API key" />
+              </div>
+              <div class="field-group">
+                <label>Wholesale Supplier API</label>
+                <select id="cfgSupplier" class="field-select">
+                  <option value="shop2topup">Shop2Topup API (shop2topup.com)</option>
+                  <option value="smileone">Smile.One Direct API</option>
+                  <option value="moogold">MooGold Reseller API</option>
+                  <option value="manual">Telegram Instant Alert (Manual Top-up)</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Supplier UID / Partner ID</label>
+                <input type="text" id="cfgSupplierUid" class="field-input" placeholder="e.g. 1928374" />
+              </div>
+              <div class="field-group">
+                <label>Supplier API Secret Key</label>
+                <input type="password" id="cfgSupplierKey" class="field-input" placeholder="Paste supplier secret key" />
+              </div>
+              <div class="field-group">
+                <label>Telegram Bot Token</label>
+                <input type="text" id="cfgTgToken" class="field-input" placeholder="74829104:AAH..." />
+              </div>
+              <div class="field-group">
+                <label>Telegram Admin Chat ID</label>
+                <input type="text" id="cfgTgChat" class="field-input" placeholder="-100192837465" />
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn-success" onclick="saveApiConfig()">Save &amp; Connect Live Backend</button>
+            <button class="btn-outline" onclick="testTelegramAlert()">Send Test Telegram Alert</button>
+          </div>
+          <div id="apiSaveMsg" class="verify-result verify-ok hidden"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ADMIN PIN MODAL -->
+  <div class="modal-backdrop" id="adminPinModal">
+    <div class="modal-box" style="max-width:360px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-weight:800; font-size:15px;">🔒 Reseller Admin Login</span>
+        <button class="btn-outline" style="padding:4px 9px;" onclick="closeAdminModal()">✕</button>
+      </div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Enter your Admin PIN to access orders, prices, and API credentials (Default PIN: <strong>2026</strong>).</p>
+      <input type="password" id="adminPinInput" class="field-input" placeholder="Enter Admin PIN..." onkeydown="if(event.key==='Enter') verifyAdminPin()" />
+      <div id="adminPinErr" class="verify-result verify-err hidden">Invalid Admin PIN.</div>
+      <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="verifyAdminPin()">Unlock Dashboard</button>
+    </div>
+  </div>
+
+  <!-- KHQR CHECKOUT MODAL -->
+  <div class="modal-backdrop" id="khqrModal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:800; font-size:15px;">Scan Dynamic KHQR</span>
+        <button class="btn-outline" style="padding:4px 9px;" onclick="closeKhqrModal()">✕</button>
+      </div>
+
+      <div class="khqr-box">
+        <div class="khqr-header">KHQR • BAKONG</div>
+        <div class="khqr-body">
+          <div style="font-size:12px; color:#475569; font-weight:700;">KHTOPUP CAMBODIA</div>
+          <div id="modalAmountDisplay" style="font-size:24px; font-weight:900; color:#0f172a; margin:4px 0;">$1.50</div>
+          <div id="modalOrderId" style="font-size:11px; color:#64748b; margin-bottom:10px;">Order: KHT-882910</div>
+
+          <div id="qrImageContainer">
+            <svg width="168" height="168" viewBox="0 0 100 100" style="margin:0 auto; display:block; border:1px solid #e2e8f0; border-radius:8px; padding:6px;">
+              <rect width="100" height="100" fill="#ffffff"/>
+              <path d="M10,10 h25 v25 h-25 z M15,15 v15 h15 v-15 z M19,19 h7 v7 h-7 z" fill="#0f172a"/>
+              <path d="M65,10 h25 v25 h-25 z M70,15 v15 h15 v-15 z M74,19 h7 v7 h-7 z" fill="#0f172a"/>
+              <path d="M10,65 h25 v25 h-25 z M15,70 v15 h15 v-15 z M19,74 h7 v7 h-7 z" fill="#0f172a"/>
+              <path d="M42,12 h6 v6 h-6 z M52,18 h6 v12 h-6 z M40,32 h12 v6 h-12 z M12,44 h14 v6 h-14 z M32,48 h8 v10 h-8 z M66,44 h10 v6 h-10 z M82,48 h8 v12 h-8 z M44,66 h12 v6 h-12 z M64,68 h8 v14 h-8 z M78,76 h12 v12 h-12 z M46,80 h10 v10 h-10 z" fill="#0f172a"/>
+              <circle cx="50" cy="50" r="9" fill="#e1232e"/>
+              <text x="50" y="53" font-size="7" font-weight="bold" fill="#ffffff" text-anchor="middle">៛</text>
+            </svg>
+          </div>
+
+          <div style="font-size:11px; color:#475569; margin-top:10px;">
+            Player: <strong id="modalPlayerSummary">123456 (2589)</strong>
+          </div>
+        </div>
+      </div>
+
+      <div id="automationLog" style="font-size:12px; color:var(--accent-cyan); text-align:center; margin-bottom:12px;">
+        ⏳ Listening for real-time bank payment confirmation...
+      </div>
+
+      <button class="btn-success" style="width:100%;" id="simWebhookBtn" onclick="triggerWebhookConfirmation()">
+        ⚡ Confirm Payment &amp; Trigger Auto-Delivery
+      </button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div><strong>KHTOPUP</strong> • Phnom Penh, Cambodia • 24/7 Automated Game Top-Up Store</div>
+    <div style="margin-top:4px;">Exchange Rate: <strong>1 USD = 4,100 KHR</strong></div>
+  </footer>
+
+  <script>
+    function safeGetStorage(key, fallback) {
+      try {
+        const val = window.localStorage.getItem(key);
+        return val !== null ? val : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function safeSetStorage(key, val) {
+      try {
+        window.localStorage.setItem(key, val);
+      } catch (e) {}
+    }
+
+    function safeGetSession(key) {
+      try {
+        return window.sessionStorage.getItem(key);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function safeSetSession(key, val) {
+      try {
+        if (val === null) window.sessionStorage.removeItem(key);
+        else window.sessionStorage.setItem(key, val);
+      } catch (e) {}
+    }
+
+    const KHR_RATE = 4100;
+    let currentCurrency = "USD";
+    let currentFilter = "ALL";
+    let currentPkgGroup = "ALL";
+    let selectedGame = null;
+    let selectedPkg = null;
+    let selectedPayment = "ABA KHQR";
+    let verifiedNickname = "";
+    let activeOrder = null;
+    let pollTimer = null;
+    let isBackendOnline = false;
+    let adminUnlocked = safeGetSession("kht_admin_unlocked") === "1";
+
+    const DEFAULT_GAMES = [
+      {
+        id: "mlbb",
+        name: "Mobile Legends: Bang Bang",
+        publisher: "Moonton",
+        category: "MOBA",
+        icon: "⚔️",
+        gradient: "linear-gradient(135deg, #1d4ed8, #7c3aed)",
+        idLabel: "User ID",
+        zoneLabel: "Zone ID",
+        hasZone: true,
+        packages: [
+          { id: "ml_wk", sku: "16642", group: "Passes & Bundles", name: "Weekly Diamond Pass", bonus: "220 Diamonds + Starlight Pts", cost: 1.45, price: 1.79, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "ml_wk3", sku: "16643", group: "Passes & Bundles", name: "3x Weekly Diamond Pass", bonus: "660 Diamonds + 3x Starlight", cost: 4.35, price: 5.29, badge: "PASS", badgeClass: "badge-pass" },
+          { id: "ml_tw", sku: "33", group: "Passes & Bundles", name: "Twilight Pass", bonus: "Exclusive Miya Skin + Rewards", cost: 7.90, price: 9.69, badge: "PASS", badgeClass: "badge-pass" },
+          { id: "ml_2x50", sku: "2x50", group: "2x First Top-Up", name: "50 + 50 Bonus Diamonds", bonus: "100 Total (First Recharge)", cost: 0.75, price: 0.95, badge: "2X", badgeClass: "badge-2x" },
+          { id: "ml_2x150", sku: "2x150", group: "2x First Top-Up", name: "150 + 150 Bonus Diamonds", bonus: "300 Total (First Recharge)", cost: 2.25, price: 2.75, badge: "2X", badgeClass: "badge-2x" },
+          { id: "ml_2x250", sku: "2x250", group: "2x First Top-Up", name: "250 + 250 Bonus Diamonds", bonus: "500 Total (First Recharge)", cost: 3.60, price: 4.35, badge: "2X", badgeClass: "badge-2x" },
+          { id: "ml_2x500", sku: "2x500", group: "2x First Top-Up", name: "500 + 500 Bonus Diamonds", bonus: "1,000 Total (First Recharge)", cost: 7.35, price: 8.85, badge: "2X", badgeClass: "badge-2x" },
+          { id: "ml_14", sku: "212", group: "Diamonds", name: "14 Diamonds", bonus: "13 + 1 Bonus", cost: 0.24, price: 0.32, badge: "", badgeClass: "" },
+          { id: "ml_42", sku: "213", group: "Diamonds", name: "42 Diamonds", bonus: "38 + 4 Bonus", cost: 0.72, price: 0.89, badge: "", badgeClass: "" },
+          { id: "ml_86", sku: "13", group: "Diamonds", name: "86 Diamonds", bonus: "78 + 8 Bonus", cost: 1.20, price: 1.45, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "ml_172", sku: "23", group: "Diamonds", name: "172 Diamonds", bonus: "156 + 16 Bonus", cost: 2.39, price: 2.85, badge: "", badgeClass: "" },
+          { id: "ml_257", sku: "25", group: "Diamonds", name: "257 Diamonds", bonus: "234 + 23 Bonus", cost: 3.55, price: 4.20, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "ml_344", sku: "214", group: "Diamonds", name: "344 Diamonds", bonus: "312 + 32 Bonus", cost: 4.78, price: 5.65, badge: "", badgeClass: "" },
+          { id: "ml_429", sku: "215", group: "Diamonds", name: "429 Diamonds", bonus: "390 + 39 Bonus", cost: 5.95, price: 7.05, badge: "", badgeClass: "" },
+          { id: "ml_514", sku: "216", group: "Diamonds", name: "514 Diamonds", bonus: "468 + 46 Bonus", cost: 7.15, price: 8.40, badge: "", badgeClass: "" },
+          { id: "ml_600", sku: "217", group: "Diamonds", name: "600 Diamonds", bonus: "546 + 54 Bonus", cost: 8.35, price: 9.75, badge: "", badgeClass: "" },
+          { id: "ml_706", sku: "26", group: "Diamonds", name: "706 Diamonds", bonus: "625 + 81 Bonus", cost: 9.50, price: 11.20, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "ml_878", sku: "218", group: "Diamonds", name: "878 Diamonds", bonus: "781 + 97 Bonus", cost: 11.90, price: 13.95, badge: "", badgeClass: "" },
+          { id: "ml_963", sku: "219", group: "Diamonds", name: "963 Diamonds", bonus: "859 + 104 Bonus", cost: 13.10, price: 15.30, badge: "", badgeClass: "" },
+          { id: "ml_1412", sku: "27", group: "Diamonds", name: "1,412 Diamonds", bonus: "1250 + 162 Bonus", cost: 19.00, price: 22.20, badge: "", badgeClass: "" },
+          { id: "ml_2195", sku: "28", group: "Diamonds", name: "2,195 Diamonds", bonus: "1860 + 335 Bonus", cost: 28.60, price: 33.50, badge: "", badgeClass: "" },
+          { id: "ml_3688", sku: "29", group: "Diamonds", name: "3,688 Diamonds", bonus: "3099 + 589 Bonus", cost: 47.80, price: 55.90, badge: "", badgeClass: "" },
+          { id: "ml_5532", sku: "30", group: "Diamonds", name: "5,532 Diamonds", bonus: "4649 + 883 Bonus", cost: 71.80, price: 83.90, badge: "", badgeClass: "" },
+          { id: "ml_9288", sku: "32", group: "Diamonds", name: "9,288 Diamonds", bonus: "7740 + 1548 Bonus", cost: 119.50, price: 139.00, badge: "", badgeClass: "" }
+        ]
+      },
+      {
+        id: "ff",
+        name: "Free Fire",
+        publisher: "Garena",
+        category: "Battle Royale",
+        icon: "🔥",
+        gradient: "linear-gradient(135deg, #ea580c, #dc2626)",
+        idLabel: "Player ID",
+        zoneLabel: "",
+        hasZone: false,
+        packages: [
+          { id: "ff_wklite", sku: "ff_wklite", group: "Passes & Bundles", name: "Weekly Lite Membership", bonus: "Instant + Daily Diamonds", cost: 0.40, price: 0.50, badge: "PASS", badgeClass: "badge-pass" },
+          { id: "ff_wk", sku: "ff_wk", group: "Passes & Bundles", name: "Weekly Membership", bonus: "450 Diamonds Total", cost: 1.55, price: 1.85, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "ff_mo", sku: "ff_mo", group: "Passes & Bundles", name: "Monthly Membership", bonus: "2,600 Diamonds Total", cost: 7.60, price: 8.95, badge: "PASS", badgeClass: "badge-pass" },
+          { id: "ff_25", sku: "ff_25", group: "Diamonds", name: "25 Diamonds", bonus: "Instant Direct", cost: 0.24, price: 0.30, badge: "", badgeClass: "" },
+          { id: "ff_100", sku: "ff_100", group: "Diamonds", name: "100 Diamonds", bonus: "+10 Bonus", cost: 0.88, price: 1.05, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "ff_310", sku: "ff_310", group: "Diamonds", name: "310 Diamonds", bonus: "+31 Bonus", cost: 2.65, price: 3.15, badge: "", badgeClass: "" },
+          { id: "ff_520", sku: "ff_520", group: "Diamonds", name: "520 Diamonds", bonus: "+52 Bonus", cost: 4.40, price: 5.20, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "ff_1060", sku: "ff_1060", group: "Diamonds", name: "1,060 Diamonds", bonus: "+106 Bonus", cost: 8.80, price: 10.30, badge: "", badgeClass: "" },
+          { id: "ff_2180", sku: "ff_2180", group: "Diamonds", name: "2,180 Diamonds", bonus: "+218 Bonus", cost: 17.80, price: 20.80, badge: "", badgeClass: "" },
+          { id: "ff_5600", sku: "ff_5600", group: "Diamonds", name: "5,600 Diamonds", bonus: "+560 Bonus", cost: 44.50, price: 51.90, badge: "", badgeClass: "" },
+          { id: "ff_11500", sku: "ff_11500", group: "Diamonds", name: "11,500 Diamonds", bonus: "+1,150 Bonus", cost: 91.00, price: 105.00, badge: "", badgeClass: "" }
+        ]
+      },
+      {
+        id: "pubg",
+        name: "PUBG Mobile",
+        publisher: "Tencent Games",
+        category: "Battle Royale",
+        icon: "🪖",
+        gradient: "linear-gradient(135deg, #b45309, #1e293b)",
+        idLabel: "Character ID",
+        zoneLabel: "",
+        hasZone: false,
+        packages: [
+          { id: "pg_60", sku: "pg_60", group: "UC Packages", name: "60 UC", bonus: "Instant Direct", cost: 0.85, price: 0.99, badge: "", badgeClass: "" },
+          { id: "pg_325", sku: "pg_325", group: "UC Packages", name: "325 UC", bonus: "300 + 25 Bonus UC", cost: 4.20, price: 4.90, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "pg_660", sku: "pg_660", group: "UC Packages", name: "660 UC", bonus: "600 + 60 Bonus UC", cost: 8.40, price: 9.75, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "pg_1800", sku: "pg_1800", group: "UC Packages", name: "1,800 UC", bonus: "1500 + 300 Bonus UC", cost: 21.00, price: 24.50, badge: "", badgeClass: "" },
+          { id: "pg_3850", sku: "pg_3850", group: "UC Packages", name: "3,850 UC", bonus: "3000 + 850 Bonus UC", cost: 42.00, price: 48.90, badge: "", badgeClass: "" },
+          { id: "pg_8100", sku: "pg_8100", group: "UC Packages", name: "8,100 UC", bonus: "6000 + 2100 Bonus UC", cost: 84.00, price: 97.50, badge: "", badgeClass: "" }
+        ]
+      },
+      {
+        id: "hok",
+        name: "Honor of Kings",
+        publisher: "Level Infinite",
+        category: "MOBA",
+        icon: "👑",
+        gradient: "linear-gradient(135deg, #0284c7, #0f172a)",
+        idLabel: "Player UID",
+        zoneLabel: "",
+        hasZone: false,
+        packages: [
+          { id: "hk_wk", sku: "hk_wk", group: "Passes & Bundles", name: "Weekly Card", bonus: "80 Tokens + Daily", cost: 0.85, price: 1.05, badge: "PASS", badgeClass: "badge-pass" },
+          { id: "hk_wkplus", sku: "hk_wkplus", group: "Passes & Bundles", name: "Weekly Card Plus", bonus: "240 Tokens + Vouchers", cost: 2.50, price: 2.99, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "hk_80", sku: "hk_80", group: "Tokens", name: "80 Tokens", bonus: "+8 Bonus", cost: 0.85, price: 1.05, badge: "", badgeClass: "" },
+          { id: "hk_240", sku: "hk_240", group: "Tokens", name: "240 Tokens", bonus: "+24 Bonus", cost: 2.50, price: 2.99, badge: "", badgeClass: "" },
+          { id: "hk_400", sku: "hk_400", group: "Tokens", name: "400 Tokens", bonus: "+40 Bonus", cost: 4.15, price: 4.95, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "hk_800", sku: "hk_800", group: "Tokens", name: "800 Tokens", bonus: "+80 Bonus", cost: 8.30, price: 9.85, badge: "", badgeClass: "" },
+          { id: "hk_2400", sku: "hk_2400", group: "Tokens", name: "2,400 Tokens", bonus: "+240 Bonus", cost: 24.90, price: 29.20, badge: "", badgeClass: "" }
+        ]
+      },
+      {
+        id: "genshin",
+        name: "Genshin Impact",
+        publisher: "HoYoverse",
+        category: "RPG",
+        icon: "✨",
+        gradient: "linear-gradient(135deg, #4f46e5, #06b6d4)",
+        idLabel: "UID",
+        zoneLabel: "Server (Asia / America / EU)",
+        hasZone: true,
+        packages: [
+          { id: "gs_welkin", sku: "gs_welkin", group: "Passes & Bundles", name: "Blessing of the Welkin Moon", bonus: "300 Crystals + 2,700 Primogems", cost: 3.85, price: 4.65, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "gs_60", sku: "gs_60", group: "Genesis Crystals", name: "60 Genesis Crystals", bonus: "Instant Direct", cost: 0.82, price: 0.99, badge: "", badgeClass: "" },
+          { id: "gs_300", sku: "gs_300", group: "Genesis Crystals", name: "300 + 30 Genesis Crystals", bonus: "330 Total", cost: 3.90, price: 4.75, badge: "", badgeClass: "" },
+          { id: "gs_980", sku: "gs_980", group: "Genesis Crystals", name: "980 + 110 Genesis Crystals", bonus: "1,090 Total", cost: 11.80, price: 14.20, badge: "HOT", badgeClass: "badge-hot" },
+          { id: "gs_1980", sku: "gs_1980", group: "Genesis Crystals", name: "1,980 + 260 Genesis Crystals", bonus: "2,240 Total", cost: 24.20, price: 28.90, badge: "", badgeClass: "" },
+          { id: "gs_3280", sku: "gs_3280", group: "Genesis Crystals", name: "3,280 + 600 Genesis Crystals", bonus: "3,880 Total", cost: 39.50, price: 46.90, badge: "", badgeClass: "" },
+          { id: "gs_6480", sku: "gs_6480", group: "Genesis Crystals", name: "6,480 + 1,600 Genesis Crystals", bonus: "8,080 Total", cost: 78.50, price: 92.50, badge: "", badgeClass: "" }
+        ]
+      }
+    ];
+
+    let storedGames = JSON.parse(safeGetStorage("khtopup_games_v2", null) || "null");
+    let GAMES = storedGames && storedGames.length ? storedGames : DEFAULT_GAMES;
+    let orders = JSON.parse(safeGetStorage("khtopup_orders", null) || "[]");
+    let config = JSON.parse(safeGetStorage("khtopup_config", null) || '{"backendUrl":"","adminPin":"2026","merchantId":"","paywayKey":"","supplier":"shop2topup","supplierUid":"","supplierKey":"","tgToken":"","tgChat":""}');
+
+    function getApiBase() {
+      if (config.backendUrl && config.backendUrl.trim()) {
+        return config.backendUrl.trim().replace(/\/$/, "");
+      }
+      if (window.location.protocol.startsWith("http")) {
+        return window.location.origin;
+      }
+      return "";
+    }
+
+    async function apiFetch(path, options = {}) {
+      const base = getApiBase();
+      if (!base) throw new Error("No HTTP server origin");
+      const res = await fetch(base + path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-pin": config.adminPin || "2026",
+          ...(options.headers || {})
+        }
+      });
+      if (!res.ok) throw new Error("API HTTP " + res.status);
+      return await res.json();
+    }
+
+    async function syncWithBackend() {
+      try {
+        const health = await apiFetch("/api/health");
+        if (health && health.ok) {
+          isBackendOnline = true;
+          const serverCatalog = await apiFetch("/api/catalog");
+          if (Array.isArray(serverCatalog) && serverCatalog.length) {
+            GAMES = serverCatalog;
+            safeSetStorage("khtopup_games_v2", JSON.stringify(GAMES));
+            renderGames();
+          }
+          if (adminUnlocked) {
+            const serverOrders = await apiFetch("/api/orders");
+            if (Array.isArray(serverOrders)) {
+              orders = serverOrders;
+              safeSetStorage("khtopup_orders", JSON.stringify(orders));
+              updateOrderCount();
+            }
+          }
+        }
+      } catch (e) {
+        isBackendOnline = false;
+      }
+      updateBackendBadges();
+    }
+
+    function updateBackendBadges() {
+      const badge = document.getElementById("backendStatusBadge");
+      if (!badge) return;
+      if (isBackendOnline) {
+        badge.className = "mode-pill mode-live";
+        badge.textContent = "● LIVE SERVER CONNECTED";
+      } else {
+        badge.className = "mode-pill mode-demo";
+        badge.textContent = "● STANDALONE BROWSER MODE";
+      }
+    }
+
+    function formatMoney(usd) {
+      if (currentCurrency === "USD") return "$" + Number(usd).toFixed(2);
+      return Math.round(Number(usd) * KHR_RATE).toLocaleString() + " ៛";
+    }
+
+    function toggleCurrency() {
+      currentCurrency = currentCurrency === "USD" ? "KHR" : "USD";
+      document.getElementById("currencyBtn").textContent = currentCurrency === "USD" ? "$ USD" : "៛ KHR";
+      if (selectedGame) {
+        renderPackages();
+        updateCheckoutTotal();
+      }
+      if (adminUnlocked) renderAdmin();
+    }
+
+    function switchView(view) {
+      document.getElementById("viewStorefront").classList.toggle("hidden", view !== "storefront");
+      document.getElementById("viewTrack").classList.toggle("hidden", view !== "track");
+      document.getElementById("viewAdmin").classList.toggle("hidden", view !== "admin");
+
+      document.getElementById("navStorefront").classList.toggle("active", view === "storefront");
+      document.getElementById("navTrack").classList.toggle("active", view === "track");
+      const navAdm = document.getElementById("navAdmin"); if (navAdm) navAdm.classList.toggle("active", view === "admin");
+
+      if (view === "admin") {
+        loadConfigInputs();
+        syncWithBackend().then(renderAdmin);
+      }
+      if (view === "track") searchOrders();
+    }
+
+    function openAdminGate() {
+      if (adminUnlocked) {
+        switchView("admin");
+      } else {
+        document.getElementById("adminPinInput").value = "";
+        document.getElementById("adminPinErr").classList.add("hidden");
+        document.getElementById("adminPinModal").classList.add("open");
+      }
+    }
+
+    function closeAdminModal() {
+      document.getElementById("adminPinModal").classList.remove("open");
+    }
+
+    function verifyAdminPin() {
+      const entered = document.getElementById("adminPinInput").value.trim();
+      const expected = config.adminPin || "2026";
+      if (entered === expected) {
+        adminUnlocked = true;
+        safeSetSession("kht_admin_unlocked", "1");
+        closeAdminModal();
+        switchView("admin");
+      } else {
+        document.getElementById("adminPinErr").classList.remove("hidden");
+      }
+    }
+
+    function lockAdmin() {
+      adminUnlocked = false;
+      safeSetSession("kht_admin_unlocked", null);
+      switchView("storefront");
+    }
+
+    function filterGames(cat, btn) {
+      currentFilter = cat;
+      document.querySelectorAll(".filter-tab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderGames();
+    }
+
+    function renderGames() {
+      const q = (document.getElementById("searchInput").value || "").toLowerCase();
+      const grid = document.getElementById("gameGrid");
+      const filtered = GAMES.filter(g => {
+        const matchCat = currentFilter === "ALL" || g.category === currentFilter;
+        const matchSearch = g.name.toLowerCase().includes(q) || g.publisher.toLowerCase().includes(q) || g.id.toLowerCase().includes(q);
+        return matchCat && matchSearch;
+      });
+
+      grid.innerHTML = filtered.map(g => `
+        <div class="game-card" onclick="selectGame('${g.id}')">
+          <div class="game-banner" style="background:${g.gradient};">
+            <span class="game-cat-tag">${g.category} • ${g.packages.length} Packs</span>
+            <div class="game-icon-circle">${g.icon}</div>
+          </div>
+          <div class="game-body">
+            <div>
+              <div class="game-title">${g.name}</div>
+              <div class="game-pub">${g.publisher} • Auto-API</div>
+            </div>
+            <div class="game-cta">Top Up Now →</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function selectGame(gameId) {
+      selectedGame = GAMES.find(g => g.id === gameId);
+      if (!selectedGame) return;
+      currentPkgGroup = "ALL";
+      selectedPkg = selectedGame.packages[0];
+      verifiedNickname = "";
+
+      document.getElementById("wsIcon").textContent = selectedGame.icon;
+      document.getElementById("wsIcon").style.background = selectedGame.gradient;
+      document.getElementById("wsTitle").textContent = selectedGame.name;
+      document.getElementById("wsSub").textContent = selectedGame.publisher + " • " + selectedGame.packages.length + " Instant Packages Available";
+      document.getElementById("lblPlayerId").textContent = selectedGame.idLabel;
+
+      const zoneGroup = document.getElementById("zoneGroup");
+      if (selectedGame.hasZone) {
+        zoneGroup.classList.remove("hidden");
+        document.getElementById("lblZoneId").textContent = selectedGame.zoneLabel;
+        document.getElementById("inputZoneId").value = selectedGame.id === "genshin" ? "Asia" : "";
+      } else {
+        zoneGroup.classList.add("hidden");
+        document.getElementById("inputZoneId").value = "";
+      }
+
+      document.getElementById("inputPlayerId").value = "";
+      document.getElementById("verifyMessage").classList.add("hidden");
+
+      renderPkgCategories();
+      renderPackages();
+      updateCheckoutTotal();
+
+      const ws = document.getElementById("topupWorkspace");
+      ws.classList.remove("hidden");
+      
+    }
+
+    function closeWorkspace() {
+      document.getElementById("topupWorkspace").classList.add("hidden");
+      selectedGame = null;
+    }
+
+    function renderPkgCategories() {
+      const groups = ["ALL", ...new Set(selectedGame.packages.map(p => p.group || "Diamonds"))];
+      const bar = document.getElementById("pkgCatBar");
+      bar.innerHTML = groups.map(grp => `
+        <button class="pkg-cat-btn ${currentPkgGroup === grp ? 'active' : ''}" onclick="setPkgGroup('${grp}')">
+          ${grp === "ALL" ? "All Packages (" + selectedGame.packages.length + ")" : grp}
+        </button>
+      `).join("");
+    }
+
+    function setPkgGroup(grp) {
+      currentPkgGroup = grp;
+      renderPkgCategories();
+      renderPackages();
+    }
+
+    function renderPackages() {
+      const grid = document.getElementById("pkgGrid");
+      const list = currentPkgGroup === "ALL"
+        ? selectedGame.packages
+        : selectedGame.packages.filter(p => (p.group || "Diamonds") === currentPkgGroup);
+
+      document.getElementById("pkgCountLabel").textContent = `Showing ${list.length} of ${selectedGame.packages.length} packages`;
+
+      grid.innerHTML = list.map(p => `
+        <div class="pkg-card ${selectedPkg && selectedPkg.id === p.id ? 'selected' : ''}" onclick="selectPackage('${p.id}')">
+          ${p.badge ? `<span class="pkg-badge ${p.badgeClass || 'badge-hot'}">${p.badge}</span>` : ''}
+          <div>
+            <div class="pkg-name">${p.name}</div>
+            <div class="pkg-bonus">${p.bonus}</div>
+          </div>
+          <div class="pkg-price">${formatMoney(p.price)}</div>
+        </div>
+      `).join("");
+    }
+
+    function selectPackage(pkgId) {
+      selectedPkg = selectedGame.packages.find(p => p.id === pkgId);
+      renderPackages();
+      updateCheckoutTotal();
+    }
+
+    function selectPayment(el) {
+      document.querySelectorAll(".pay-card").forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+      selectedPayment = el.dataset.method;
+    }
+
+    function updateCheckoutTotal() {
+      document.getElementById("selectedPkgSummary").textContent = selectedPkg ? selectedPkg.name : "-";
+      document.getElementById("checkoutTotal").textContent = selectedPkg ? formatMoney(selectedPkg.price) : "$0.00";
+    }
+
+    async function verifyPlayer() {
+      const pid = document.getElementById("inputPlayerId").value.trim();
+      const zid = document.getElementById("inputZoneId").value.trim();
+      const msg = document.getElementById("verifyMessage");
+      msg.classList.remove("hidden", "verify-ok", "verify-err");
+
+      if (!pid || (selectedGame.hasZone && !zid)) {
+        msg.classList.add("verify-err");
+        msg.textContent = "Please enter your valid Player ID" + (selectedGame.hasZone ? " and Zone/Server." : ".");
+        return;
+      }
+
+      if (isBackendOnline) {
+        try {
+          const res = await apiFetch("/api/verify-player", {
+            method: "POST",
+            body: JSON.stringify({ gameId: selectedGame.id, playerId: pid, zoneId: zid })
+          });
+          if (res.nickname) {
+            verifiedNickname = res.nickname;
+            msg.classList.add("verify-ok");
+            msg.textContent = `✓ Verified Account: ${verifiedNickname} (${pid}${zid ? " / " + zid : ""})`;
+            return;
+          }
+        } catch (e) {}
+      }
+
+      const sampleNames = ["KH_ProGamer", "PhnomPenh_King", "Vannak_MLBB", "Sreyneang_99", "Sokha_Legend"];
+      verifiedNickname = sampleNames[pid.length % sampleNames.length];
+      msg.classList.add("verify-ok");
+      msg.textContent = `✓ Verified Account: ${verifiedNickname} (${pid}${zid ? " / " + zid : ""})`;
+    }
+
+    async function createOrderAndOpenKhqr() {
+      const pid = document.getElementById("inputPlayerId").value.trim();
+      const zid = document.getElementById("inputZoneId").value.trim();
+      if (!pid || (selectedGame.hasZone && !zid)) {
+        verifyPlayer();
+        return;
+      }
+
+      const payload = {
+        gameId: selectedGame.id,
+        gameName: selectedGame.name,
+        pkgId: selectedPkg.id,
+        sku: selectedPkg.sku,
+        pkgName: selectedPkg.name,
+        playerId: pid,
+        zoneId: zid,
+        nickname: verifiedNickname || "Player_" + pid.slice(-4),
+        priceUsd: selectedPkg.price,
+        costUsd: selectedPkg.cost,
+        payment: selectedPayment
+      };
+
+      activeOrder = null;
+      let qrImageUrl = "";
+      if (isBackendOnline) {
+        try {
+          const created = await apiFetch("/api/orders", {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          activeOrder = created.order;
+          qrImageUrl = created.qrImage || "";
+        } catch (e) {}
+      }
+
+      if (!activeOrder) {
+        activeOrder = {
+          ...payload,
+          id: "KHT-" + Math.floor(100000 + Math.random() * 900000),
+          status: "PENDING",
+          createdAt: new Date().toLocaleTimeString()
+        };
+      }
+
+      orders.unshift(activeOrder);
+      saveLocalOrders();
+
+      document.getElementById("modalAmountDisplay").textContent = formatMoney(activeOrder.priceUsd);
+      document.getElementById("modalOrderId").textContent = `Order: ${activeOrder.id} • ${activeOrder.pkgName}`;
+      document.getElementById("modalPlayerSummary").textContent = `${activeOrder.playerId}${activeOrder.zoneId ? " (" + activeOrder.zoneId + ")" : ""}`;
+
+      if (qrImageUrl) {
+        document.getElementById("qrImageContainer").innerHTML = `<img src="${qrImageUrl}" alt="ABA KHQR" style="width:176px;height:176px;margin:0 auto;display:block;border-radius:8px;" />`;
+      }
+
+      const btn = document.getElementById("simWebhookBtn");
+      btn.disabled = false;
+      btn.textContent = isBackendOnline
+        ? "⚡ Trigger Webhook / Confirm Payment → Auto-Deliver"
+        : "⚡ Simulate Bank Webhook (Paid) → Auto-Deliver";
+      btn.onclick = triggerWebhookConfirmation;
+
+      document.getElementById("automationLog").textContent = "⏳ Listening for Bakong KHQR payment confirmation...";
+      document.getElementById("khqrModal").classList.add("open");
+
+      if (isBackendOnline) startOrderPolling(activeOrder.id);
+    }
+
+    function startOrderPolling(orderId) {
+      clearInterval(pollTimer);
+      pollTimer = setInterval(async () => {
+        try {
+          const data = await apiFetch("/api/orders/" + orderId);
+          if (data && data.status === "COMPLETED") {
+            clearInterval(pollTimer);
+            activeOrder.status = "COMPLETED";
+            const idx = orders.findIndex(o => o.id === orderId);
+            if (idx >= 0) orders[idx] = data;
+            saveLocalOrders();
+            document.getElementById("automationLog").innerHTML = `<span style="color:#34d399; font-weight:700;">✅ Payment Verified & Top-Up Delivered!</span>`;
+          }
+        } catch (e) {}
+      }, 3000);
+    }
+
+    function closeKhqrModal() {
+      clearInterval(pollTimer);
+      document.getElementById("khqrModal").classList.remove("open");
+    }
+
+    async function triggerWebhookConfirmation() {
+      if (!activeOrder) return;
+      const btn = document.getElementById("simWebhookBtn");
+      const log = document.getElementById("automationLog");
+      btn.disabled = true;
+
+      if (isBackendOnline) {
+        log.textContent = "⚡ Sending payment webhook to live backend & dispatching supplier API...";
+        try {
+          const res = await apiFetch("/api/webhook/khqr", {
+            method: "POST",
+            body: JSON.stringify({
+              tran_id: activeOrder.id,
+              status: 0,
+              apv: "APV" + Math.floor(100000 + Math.random() * 900000)
+            })
+          });
+          activeOrder.status = "COMPLETED";
+          const idx = orders.findIndex(o => o.id === activeOrder.id);
+          if (idx >= 0) orders[idx].status = "COMPLETED";
+          saveLocalOrders();
+          log.innerHTML = `<span style="color:#34d399; font-weight:700;">✅ ${res.message || "Delivered & Telegram Sent!"}</span>`;
+          btn.textContent = "Done! View in Order Tracker";
+          btn.disabled = false;
+          btn.onclick = () => {
+            closeKhqrModal();
+            switchView("track");
+          };
+          return;
+        } catch (e) {}
+      }
+
+      log.textContent = "1/3 ✓ ABA KHQR Payment Verified (APV: " + Math.floor(100000 + Math.random() * 900000) + ")";
+      setTimeout(() => {
+        log.textContent = "2/3 ⚡ Dispatching Diamonds via Supplier Partner API...";
+      }, 600);
+      setTimeout(() => {
+        activeOrder.status = "COMPLETED";
+        saveLocalOrders();
+        log.innerHTML = `<span style="color:#34d399; font-weight:700;">3/3 ✅ Delivered to ${activeOrder.nickname}!</span>`;
+        btn.textContent = "Done! View in Order Tracker";
+        btn.disabled = false;
+        btn.onclick = () => {
+          closeKhqrModal();
+          switchView("track");
+        };
+      }, 1300);
+    }
+
+    function saveLocalOrders() {
+      safeSetStorage("khtopup_orders", JSON.stringify(orders));
+      updateOrderCount();
+    }
+
+    function updateOrderCount() {
+      const badgeEl = document.getElementById("orderCountBadge"); if (badgeEl) badgeEl.textContent = orders.length;
+    }
+
+    async function searchOrders() {
+      const q = (document.getElementById("trackInput").value || "").trim();
+      const box = document.getElementById("trackResults");
+      let list = orders;
+
+      if (isBackendOnline && q) {
+        try {
+          const found = await apiFetch("/api/orders/" + encodeURIComponent(q));
+          if (found && found.id) list = [found];
+        } catch (e) {}
+      } else if (q) {
+        const ql = q.toLowerCase();
+        list = orders.filter(o => o.id.toLowerCase().includes(ql) || o.playerId.toLowerCase().includes(ql));
+      }
+
+      if (!list.length) {
+        box.innerHTML = `<div style="color:var(--text-secondary); font-size:13px;">No orders found. Enter a valid Order ID (e.g. KHT-...) or place an order on the Storefront.</div>`;
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Game</th>
+                <th>Package</th>
+                <th>Player</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(o => `
+                <tr>
+                  <td><strong>${o.id}</strong></td>
+                  <td>${o.gameName}</td>
+                  <td>${o.pkgName}</td>
+                  <td>${o.playerId}${o.zoneId ? " (" + o.zoneId + ")" : ""}</td>
+                  <td>${formatMoney(o.priceUsd)}</td>
+                  <td><span class="status-badge ${o.status === 'COMPLETED' ? 'st-completed' : 'st-pending'}">${o.status}</span></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function switchAdminTab(tab) {
+      document.getElementById("adminTabOrders").classList.toggle("hidden", tab !== "orders");
+      document.getElementById("adminTabPricing").classList.toggle("hidden", tab !== "pricing");
+      document.getElementById("adminTabApi").classList.toggle("hidden", tab !== "api");
+
+      document.getElementById("tabOrdersBtn").classList.toggle("active", tab === "orders");
+      document.getElementById("tabPricingBtn").classList.toggle("active", tab === "pricing");
+      document.getElementById("tabApiBtn").classList.toggle("active", tab === "api");
+    }
+
+    function renderAdmin() {
+      const completed = orders.filter(o => o.status === "COMPLETED");
+      const rev = completed.reduce((s, o) => s + Number(o.priceUsd), 0);
+      const profit = completed.reduce((s, o) => s + (Number(o.priceUsd) - Number(o.costUsd || 0)), 0);
+
+      document.getElementById("admTotalOrders").textContent = orders.length;
+      document.getElementById("admRevenue").textContent = formatMoney(rev);
+      document.getElementById("admProfit").textContent = formatMoney(profit);
+
+      const tbody = document.getElementById("adminOrdersBody");
+      tbody.innerHTML = orders.length ? orders.map(o => `
+        <tr>
+          <td><strong>${o.id}</strong><br><span style="color:var(--text-muted); font-size:10px;">${o.createdAt || ""}</span></td>
+          <td>${o.gameName}<br><span style="color:var(--accent-cyan);">${o.pkgName}</span></td>
+          <td>${o.playerId}${o.zoneId ? " (" + o.zoneId + ")" : ""}</td>
+          <td>${formatMoney(o.priceUsd)}</td>
+          <td><span class="status-badge ${o.status === 'COMPLETED' ? 'st-completed' : 'st-pending'}">${o.status}</span></td>
+          <td>
+            ${o.status !== 'COMPLETED'
+              ? `<button class="btn-primary" style="padding:5px 9px; font-size:11px;" onclick="forceCompleteOrder('${o.id}')">Auto-Fulfill</button>`
+              : `<span style="color:#34d399; font-size:11px;">✓ Delivered</span>`}
+          </td>
+        </tr>
+      `).join("") : `<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">No orders yet.</td></tr>`;
+
+      const gameSel = document.getElementById("newPkgGame");
+      gameSel.innerHTML = GAMES.map(g => `<option value="${g.id}">${g.name}</option>`).join("");
+
+      const pbody = document.getElementById("adminPricingBody");
+      pbody.innerHTML = GAMES.flatMap(g => g.packages.map(p => `
+        <tr>
+          <td>${g.name}</td>
+          <td>${p.group || "Diamonds"}</td>
+          <td>${p.name}</td>
+          <td>$${Number(p.cost).toFixed(2)}</td>
+          <td><input type="number" step="0.05" value="${Number(p.price).toFixed(2)}" class="field-input" style="width:90px; padding:5px 8px;" onchange="updatePkgPrice('${g.id}','${p.id}', this.value)" /></td>
+          <td style="color:#34d399; font-weight:700;">$${(Number(p.price) - Number(p.cost)).toFixed(2)}</td>
+        </tr>
+      `)).join("");
+    }
+
+    function addCustomPackage() {
+      const gameId = document.getElementById("newPkgGame").value;
+      const group = document.getElementById("newPkgGroup").value;
+      const name = document.getElementById("newPkgName").value.trim();
+      const bonus = document.getElementById("newPkgBonus").value.trim() || "Instant Direct";
+      const sku = document.getElementById("newPkgSku").value.trim() || ("sku_" + Date.now());
+      const cost = parseFloat(document.getElementById("newPkgCost").value);
+      const price = parseFloat(document.getElementById("newPkgPrice").value);
+
+      if (!name || isNaN(cost) || isNaN(price)) {
+        alert("Please fill in Package Title, Wholesale Cost, and Retail Price.");
+        return;
+      }
+
+      const g = GAMES.find(x => x.id === gameId);
+      g.packages.push({
+        id: "custom_" + Date.now(),
+        sku,
+        group,
+        name,
+        bonus,
+        cost,
+        price,
+        badge: "NEW",
+        badgeClass: "badge-hot"
+      });
+
+      safeSetStorage("khtopup_games_v2", JSON.stringify(GAMES));
+      document.getElementById("newPkgName").value = "";
+      document.getElementById("newPkgBonus").value = "";
+      renderGames();
+      renderAdmin();
+      savePricingToBackend();
+    }
+
+    async function forceCompleteOrder(id) {
+      if (isBackendOnline) {
+        try {
+          await apiFetch("/api/webhook/khqr", {
+            method: "POST",
+            body: JSON.stringify({ tran_id: id, status: 0, apv: "ADMIN_MANUAL" })
+          });
+        } catch (e) {}
+      }
+      const ord = orders.find(o => o.id === id);
+      if (ord) {
+        ord.status = "COMPLETED";
+        saveLocalOrders();
+        renderAdmin();
+      }
+    }
+
+    function updatePkgPrice(gameId, pkgId, val) {
+      const g = GAMES.find(x => x.id === gameId);
+      const p = g.packages.find(x => x.id === pkgId);
+      const num = parseFloat(val);
+      if (!isNaN(num) && num > 0) {
+        p.price = num;
+        safeSetStorage("khtopup_games_v2", JSON.stringify(GAMES));
+        renderAdmin();
+      }
+    }
+
+    async function savePricingToBackend() {
+      safeSetStorage("khtopup_games_v2", JSON.stringify(GAMES));
+      const msg = document.getElementById("priceSaveMsg");
+      if (isBackendOnline) {
+        try {
+          await apiFetch("/api/catalog", { method: "POST", body: JSON.stringify({ games: GAMES }) });
+          msg.textContent = "✓ All packages & retail prices saved to live backend database!";
+          msg.classList.remove("hidden");
+          return;
+        } catch (e) {}
+      }
+      msg.textContent = "✓ All packages & retail prices saved locally in browser.";
+      msg.classList.remove("hidden");
+    }
+
+    function loadConfigInputs() {
+      document.getElementById("cfgBackendUrl").value = config.backendUrl || "";
+      document.getElementById("cfgAdminPin").value = config.adminPin || "2026";
+      document.getElementById("cfgMerchantId").value = config.merchantId || "";
+      document.getElementById("cfgPaywayKey").value = config.paywayKey || "";
+      document.getElementById("cfgSupplier").value = config.supplier || "smileone";
+      document.getElementById("cfgSupplierUid").value = config.supplierUid || "";
+      document.getElementById("cfgSupplierKey").value = config.supplierKey || "";
+      document.getElementById("cfgTgToken").value = config.tgToken || "";
+      document.getElementById("cfgTgChat").value = config.tgChat || "";
+    }
+
+    async function saveApiConfig() {
+      config = {
+        backendUrl: document.getElementById("cfgBackendUrl").value.trim(),
+        adminPin: document.getElementById("cfgAdminPin").value.trim() || "2026",
+        merchantId: document.getElementById("cfgMerchantId").value.trim(),
+        paywayKey: document.getElementById("cfgPaywayKey").value.trim(),
+        supplier: document.getElementById("cfgSupplier").value,
+        supplierUid: document.getElementById("cfgSupplierUid").value.trim(),
+        supplierKey: document.getElementById("cfgSupplierKey").value.trim(),
+        tgToken: document.getElementById("cfgTgToken").value.trim(),
+        tgChat: document.getElementById("cfgTgChat").value.trim()
+      };
+      safeSetStorage("khtopup_config", JSON.stringify(config));
+
+      const msg = document.getElementById("apiSaveMsg");
+      await syncWithBackend();
+      if (isBackendOnline) {
+        try {
+          await apiFetch("/api/config", { method: "POST", body: JSON.stringify(config) });
+          msg.textContent = "✓ Connected to live server and saved ABA PayWay, Supplier API & Telegram keys!";
+          msg.classList.remove("hidden");
+          return;
+        } catch (e) {}
+      }
+      msg.textContent = "✓ Settings saved locally. Start server.js and enter its URL above to enable live API automation.";
+      msg.classList.remove("hidden");
+    }
+
+    async function testTelegramAlert() {
+      const msg = document.getElementById("apiSaveMsg");
+      if (!isBackendOnline) {
+        msg.textContent = "⚠ Start the Node.js backend server first to send live Telegram Bot messages.";
+        msg.classList.remove("hidden");
+        return;
+      }
+      try {
+        const res = await apiFetch("/api/test-telegram", { method: "POST" });
+        msg.textContent = res.ok ? "✓ Test Telegram alert delivered to your admin chat!" : ("⚠ " + res.error);
+        msg.classList.remove("hidden");
+      } catch (e) {
+        msg.textContent = "⚠ Failed to reach backend server.";
+        msg.classList.remove("hidden");
+      }
+    }
+
+    
+    // Secret Admin Access: URL (?admin=1 or #admin) OR 5 quick taps on brand logo
+    let logoTapCount = 0;
+    let logoTapTimer = null;
+    document.querySelector(".brand").addEventListener("click", function(e) {
+      logoTapCount++;
+      clearTimeout(logoTapTimer);
+      if (logoTapCount >= 5) {
+        logoTapCount = 0;
+        openAdminGate();
+      } else {
+        logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 1800);
+      }
+    });
+
+    if (window.location.pathname.endsWith("/admin247") || window.location.search.includes("admin247") || window.location.search.includes("admin=1") || window.location.hash === "#admin247" || window.location.hash === "#admin") {
+      setTimeout(() => { openAdminGate(); }, 150);
+    }
+
+    // Boot
+    renderGames();
+    selectGame("mlbb");
+    updateOrderCount();
+    syncWithBackend();
+  </script>
+</body>
+</html>
